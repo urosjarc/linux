@@ -3,11 +3,10 @@
 
 from setuptools import setup
 
-with open('README.md') as readme_file:
+with open('README.rst') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    'Click>=6.0',
     # TODO: put package requirements here
 ]
 

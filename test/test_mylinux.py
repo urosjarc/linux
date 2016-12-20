@@ -11,7 +11,6 @@ Tests for `mylinux` module.
 import pytest
 
 from contextlib import contextmanager
-from click.testing import CliRunner
 
 from mylinux import mylinux
 from mylinux import cli
@@ -34,10 +33,5 @@ def test_content(response):
 
 
 def test_command_line_interface():
-	runner = CliRunner()
-	result = runner.invoke(cli.main)
-	assert result.exit_code == 0
-	assert 'mylinux.cli.main' in result.output
-	help_result = runner.invoke(cli.main, ['--help'])
-	assert help_result.exit_code == 0
-	assert '--help  Show this message and exit.' in help_result.output
+	"""Sample pytest test function with the pytest fixture as an argument.
+    """
