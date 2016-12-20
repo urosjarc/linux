@@ -1,19 +1,21 @@
 .PHONY: clean clean-test clean-pyc clean-build docs help
 .DEFAULT_GOAL := help
+
+VIRTUAL_ENV = build/venv
+PATH := $(VIRTUAL_ENV)/bin:$(PATH)
+
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
 try:
 	from urllib import pathname2url
 except:
 	from urllib.request import pathname2url
-
 webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
 endef
 export BROWSER_PYSCRIPT
 
 define PRINT_HELP_PYSCRIPT
 import re, sys
-
 for line in sys.stdin:
 	match = re.match(r'^([a-zA-Z_-]+):.*?## (.*)$$', line)
 	if match:
@@ -84,3 +86,9 @@ dist: clean ## builds source and wheel package
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+
+init: clean ## init project to start developing
+
+install-dev: clean ## install dev packages
+	virtualenv -p python3 build/venv --distribute
+	pip install -r requirements_dev.txt
