@@ -1,0 +1,44 @@
+site_name: mylinux
+site_description: Linux post installation helper and manager.
+site_author: Uroš Jarc
+site_url: 'https://urosjarc.github.io/mylinux'
+site_favicon: media/favicon.ico
+site_dir: build/docs
+repo_url: 'https://github.com/urosjarc/mylinux'
+copyright: Copyright © 2016 Uroš Jarc
+theme: material
+docs_dir: docs
+pages:
+  - Project: index.md
+  - Get started: getStarted.md
+  - Tutorials: tutorials.md
+  - Code of conduct: codeOfConduct.md
+  - Contribution: contribution.md
+  - Developers: developers.md
+  - Documentation: documentation.md
+  - Changelog: changelog.md
+extra:
+  version: 0.1.1
+  logo: media/logo.png
+  github:
+    download_release: true
+  palette:
+    primary: green
+    accent: green
+  font:
+    text: Roboto
+    code: Roboto Mono
+  author:
+    github: urosjarc
+    twitter: urosjarc
+markdown_extensions:
+  - codehilite(css_class=code)
+  - admonition
+  - toc:
+      permalink: '#'
+google_analytics:
+  - UA-53923399-3
+  - auto
+extra_css:
+  - template/theme.css
+  - template/fadein.css

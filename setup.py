@@ -3,11 +3,8 @@
 
 from setuptools import setup
 
-with open('README.rst') as readme_file:
+with open('README.md') as readme_file:
     readme = readme_file.read()
-
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
 
 requirements = [
     'Click>=6.0',
@@ -22,7 +19,7 @@ setup(
     name='mylinux',
     version='0.0.1',
     description="Linux post installation helper and manager.",
-    long_description=readme + '\n\n' + history,
+    long_description=readme,
     author="Uroš Jarc",
     author_email='jar.fmf@gmail.com',
     url='https://github.com/urosjarc/mylinux',

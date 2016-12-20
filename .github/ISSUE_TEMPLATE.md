@@ -1,15 +1,29 @@
-* mylinux version:
-* Python version:
-* Operating System:
+**Motivation for or Use Case:**
+Explain why this is a bug for you.
 
-### Description
+**Current behavior:**
 
-Describe what you were trying to get done.
-Tell us what happened, what went wrong, and what you expected to happen.
+**Expected or suggested behavior:**
 
-### What I Did
+**Screenshots & GIFs:**
 
-```
-Paste the command(s) you ran and the output.
-If there was a crash, please include the traceback here.
-```
+![Screenshots and GIFs which follow reproduction steps to demonstrate the problem](url)
+
+**Reproduction Steps:**
+
+1. First Step...
+2. Second Step...
+
+**Related Issues:**
+
+* **issue_code**: Describe why is related.
+
+**System informations:**
+
+* OS: (linux, windows, ios)
+* node: (vX.X.X)
+* project: (vX.X.X)
+
+**Debug log file:**
+
+**Other informations:**

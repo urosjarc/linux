@@ -1,0 +1,9 @@
+{
+	"user": "urosjarc",
+	"project": "generator-generator2",
+	"date-format": "%d.%m.%Y",
+	"output": "docs/changelog.md",
+	"header-label": "",
+	"no-verbose": "",
+	"token": "ad9f253d490a97d73a55bd1992224a3bc00aecf9"
+}
