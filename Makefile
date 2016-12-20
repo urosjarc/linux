@@ -87,8 +87,6 @@ dist: clean ## builds source and wheel package
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
 
-init: clean ## init project to start developing
-
-install-dev: clean ## install dev packages
+init: clean ## install dev packages
 	virtualenv -p python3 build/venv --distribute
 	pip install -r requirements_dev.txt
