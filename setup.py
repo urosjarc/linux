@@ -16,7 +16,7 @@ test_requirements = [
 
 setup(
     name='mylinux',
-    version='0.0.1',
+    version='0.1.0',
     description="Linux post installation helper and manager.",
     long_description=readme,
     author="Uroš Jarc",

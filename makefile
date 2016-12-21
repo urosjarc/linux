@@ -61,12 +61,13 @@ codacy: test-spec ## upload coverage report
 gh-deploy: docs ## upload docs to gh-pages
 	mkdocs gh-deploy --message $(NOW_DATE) --config-file config/mkdocs.yml
 
+
+pip: clean dist ## package and upload a release
+	twine upload dist/*
+
 #============================
 ### BUILD ###################
 #============================
-
-release: clean dist ## package and upload a release
-	twine upload dist/*
 
 dist: clean ## builds source and wheel package
 	python setup.py sdist
@@ -75,6 +76,9 @@ dist: clean ## builds source and wheel package
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+
+bumpversion: ## bump version
+	bumpversion $@
 
 #============================
 ### CLEANING ################
