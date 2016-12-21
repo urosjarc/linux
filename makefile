@@ -13,49 +13,60 @@ init: clean ## start virtual environment and install dev. requirements
 ### TESTING #################
 #============================
 
-test-CI: ## run CI tests
-	tox
-
 test: test-spec lint ## run test, lint
 
+test-all: ## run CI tests
+	tox
+
 test-spec: ## run spec tests
-	coverage run --source mylinux -m py.test test/spec
+	coverage run --source $(PACKAGE) -m py.test test/spec
 	coverage report -m
-	coverage xml
 	coverage html
 
 test-e2e: ## run e2e tests
 	py.test test/e2e
 
 lint: ## check style with pylint
-	pylint --reports=n --output-format=colorized mylinux tests
+	pylint --reports=n --output-format=colorized $(PACKAGE) tests
 
-test-dep: ## test dependencies
-	pip list --outdated
+dep: ## test dependencies
+	pip list --outdated --format=columns
 
 #============================
 ### DOCS ####################
 #============================
 
-docs: pdoc ## generate documentation
-	$(BROWSER) build/docs/mylinux/index.html
-
-codacy: test-spec ## upload codacy coverage report
-	python-codacy-coverage -r coverage.xml
+docs: ## generate documentation
+	cp README.md docs/index.md
+	cp CONTRIBUTING.md docs/contribution.md
+	github_changelog_generator --user urosjarc --project $(PACKAGE) --date-format %d.%m.%Y --output docs/changelog.md --header-label --no-verbose --token ad9f253d490a97d73a55bd1992224a3bc00aecf9
+	mkdocs build --strict --clean --quiet --config-file config/mkdocs.yml
+	pdoc --html --overwrite --html-dir build/api-docs $(PACKAGE)
+	cp build/api-docs/$(PACKAGE)/* build/docs/documentation
+	rm docs/index.md docs/contribution.md docs/changelog.md
 
 serve: docs ## compile the docs watching for changes
-	watchmedo shell-command -p '*.md' -c '$(MAKE) docs' -R -D .
+	$(BROWSER) build/docs/index.html
+	watchmedo shell-command -p '*.md' -c \
+		'$(MAKE) docs && $(BROWSER) build/docs/index.html' -R -D .
 
-pdoc: ## generate pdoc html
-	pdoc --html --overwrite --html-dir build/docs ./mylinux
+#============================
+### INTEGRATIONS ############
+#============================
+
+codacy: test-spec ## upload coverage report
+	coverage xml
+	python-codacy-coverage -r coverage.xml
+
+gh-deploy: docs ## upload docs to gh-pages
+	mkdocs gh-deploy --message $(NOW_DATE) --config-file config/mkdocs.yml
 
 #============================
 ### BUILD ###################
 #============================
 
-release: clean ## package and upload a release
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+release: clean dist ## package and upload a release
+	twine upload dist/*
 
 dist: clean ## builds source and wheel package
 	python setup.py sdist

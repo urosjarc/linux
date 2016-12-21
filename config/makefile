@@ -1,10 +1,11 @@
 VIRTUAL_ENV = virtualenv
 PATH := $(VIRTUAL_ENV)/bin:$(PATH)
-export CODACY_PROJECT_TOKEN=%Project_Token%
 
 .PHONY: clean clean-test clean-pyc clean-build docs help test
 .DEFAULT_GOAL := help
 
+PACKAGE = mylinux
+NOW_DATE=`date +%Y-%m-%d %H:%M:%S`
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
