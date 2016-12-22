@@ -16,7 +16,7 @@ test_requirements = [
 
 setup(
     name='mylinux',
-    version='0.1.0',
+    version='0.0.1',
     description="Linux post installation helper and manager.",
     long_description=readme,
     author="Uroš Jarc",
@@ -32,10 +32,10 @@ setup(
             'mylinux=mylinux.cli:main'
         ]
     },
-    include_package_data=True,
+    include_package_data=False,
     install_requires=requirements,
     license="MIT license",
-    zip_safe=False,
+    zip_safe=True,
     keywords='mylinux',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

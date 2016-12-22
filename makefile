@@ -39,11 +39,17 @@ dep: ## test dependencies
 docs: ## generate documentation
 	cp README.md docs/index.md
 	cp CONTRIBUTING.md docs/contribution.md
-	github_changelog_generator --user urosjarc --project $(PACKAGE) --date-format %d.%m.%Y --output docs/changelog.md --header-label --no-verbose --token ad9f253d490a97d73a55bd1992224a3bc00aecf9
+	github_changelog_generator  \
+		--user urosjarc \
+		--project $(PACKAGE) \
+		--date-format %d.%m.%Y \
+		--output docs/changelog.md \
+		--header-label --no-verbose \
+		--token ad9f253d490a97d73a55bd1992224a3bc00aecf9
 	mkdocs build --strict --clean --quiet --config-file config/mkdocs.yml
 	pdoc --html --overwrite --html-dir build/api-docs $(PACKAGE)
 	cp build/api-docs/$(PACKAGE)/* build/docs/documentation
-	rm docs/index.md docs/contribution.md docs/changelog.md
+	$(MAKE) clean-docs
 
 serve: docs ## compile the docs watching for changes
 	$(BROWSER) build/docs/index.html
@@ -61,13 +67,15 @@ codacy: test-spec ## upload coverage report
 gh-deploy: docs ## upload docs to gh-pages
 	mkdocs gh-deploy --message $(NOW_DATE) --config-file config/mkdocs.yml
 
-
 pip: clean dist ## package and upload a release
 	twine upload dist/*
 
 #============================
 ### BUILD ###################
 #============================
+
+deb: dist ## create debian package
+	py2dsc-deb dist/*.tar.gz
 
 dist: clean ## builds source and wheel package
 	python setup.py sdist
@@ -90,7 +98,7 @@ major: ## bump version to patch
 ### CLEANING ################
 #============================
 
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
+clean: clean-build clean-pyc clean-test clean-docs ## remove all build, test, coverage and Python artifacts
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -98,6 +106,7 @@ clean-build: ## remove build artifacts
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
+	find . -name '*.tar.gz' -exec rm -f {} +
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -109,3 +118,8 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .tox/
 	rm -f .coverage coverage.xml
 	rm -fr htmlcov/
+
+clean-docs: ## remove docs artifacts
+	rm -f docs/index.md
+	rm -f docs/contribution.md
+	rm -f docs/changelog.md
