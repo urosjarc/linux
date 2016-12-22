@@ -26,10 +26,10 @@ for line in sys.stdin:
 	if match:
 		target = match.groups()[0]
 		print("\n%s" % (target))
-	match = re.match(r'^([a-zA-Z_-]+):.*?## (.*)$$', line)
+	match = re.match(r'^([a-zA-Z0-9_-]+):.*?## (.*)$$', line)
 	if match:
 		target, help = match.groups()
-		print("  %-20s %s" % (target, help))
+		print("  %-15s %s" % (target, help))
 endef
 export PRINT_HELP_PYSCRIPT
 

@@ -31,6 +31,8 @@ lint: ## check style with pylint
 
 dep: ## test dependencies
 	pip list --outdated --format=columns
+	@if [ -z "$$(pip list --outdated --format=columns)" ]; then exit 0; else exit 1; fi
+
 
 #============================
 ### DOCS ####################
