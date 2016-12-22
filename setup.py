@@ -7,11 +7,10 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    # TODO: put package requirements here
+	'sh'
 ]
 
 test_requirements = [
-    # TODO: put package test requirements here
 ]
 
 setup(
