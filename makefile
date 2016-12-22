@@ -8,6 +8,10 @@ init: clean ## start virtual environment and install dev. requirements
 	rm -fr $(VIRTUAL_ENV)
 	virtualenv -p python3 $(VIRTUAL_ENV) --distribute
 	pip install -r requirements_dev.txt
+	pip install -e .
+
+run: ## run package script
+	python mylinux/cli/main.py ${ARGS}
 
 #============================
 ### TESTING #################
@@ -104,6 +108,7 @@ clean: clean-build clean-pyc clean-test clean-docs ## remove all build, test, co
 
 clean-build: ## remove build artifacts
 	rm -fr build/
+	rm -fr deb_dist/
 	rm -fr dist/
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +

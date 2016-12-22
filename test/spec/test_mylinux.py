@@ -1,20 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-test_mylinux
-----------------------------------
-
-Tests for `mylinux` module.
-"""
-
 import pytest
-
-from contextlib import contextmanager
-
-from mylinux import mylinux
-from mylinux import cli
-
 
 @pytest.fixture
 def response():
