@@ -1,1 +1,10 @@
-__import__('pkg_resources').declare_namespace(__name__)
+# -*- coding: utf-8 -*-
+
+"""
+Testing pdoc
+"""
+
+__author__ = """Uroš Jarc"""
+__email__ = 'jar.fmf@gmail.com'
+__version__ = '0.0.1'
+__description__ = "Linux post installation helper and manager."

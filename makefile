@@ -11,7 +11,7 @@ init: clean ## start virtual environment and install dev. requirements
 	pip install -e .
 
 run: ## run package script
-	python mylinux/cli/main.py ${ARGS}
+	@python mylinux/cli/main.py ${ARGS}
 
 #============================
 ### TESTING #################

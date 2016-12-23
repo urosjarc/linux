@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
+import mylinux
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
 	'sh',
-	'cement'
+	'cement==2.10.2'
 ]
 
 test_requirements = [
@@ -16,11 +17,11 @@ test_requirements = [
 
 setup(
     name='mylinux',
-    version='0.0.1',
-    description="Linux post installation helper and manager.",
+    version=mylinux.__version__,
+    description=mylinux.__description__,
     long_description=readme,
-    author="Uroš Jarc",
-    author_email='jar.fmf@gmail.com',
+    author=mylinux.__author__,
+    author_email=mylinux.__email__,
     url='https://github.com/urosjarc/mylinux',
     packages=[
         'mylinux',
