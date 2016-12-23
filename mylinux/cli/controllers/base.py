@@ -4,7 +4,9 @@ import mylinux
 
 class BaseController(CementBaseController):
 	class Meta:
-		label = __name__.split('.')[-1]
+		label = None
+		stacked_on = None
+		stacked_type = None
 		description = "{} - {}".format(
 			mylinux.__name__,
 			mylinux.__description__
