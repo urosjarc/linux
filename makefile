@@ -4,9 +4,11 @@ include config/makefile
 ### START DEVELOPING ########
 #============================
 
-init: clean ## start virtual environment and install dev. requirements
+init: install-dev ## start virtual environment and install dev. requirements
 	rm -fr $(VIRTUAL_ENV)
 	virtualenv -p python3 $(VIRTUAL_ENV) --distribute
+
+install: clean ## install development libs
 	pip install -r requirements_dev.txt
 	pip install -e .
 
@@ -87,9 +89,6 @@ dist: clean ## builds source and wheel package
 	python setup.py sdist
 	python setup.py bdist_wheel
 	ls -l dist
-
-install: clean ## install the package to the active Python's site-packages
-	python setup.py install
 
 patch: ## bump version to patch
 	bumpversion patch
