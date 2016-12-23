@@ -8,4 +8,3 @@ class ServerController(BaseController):
 	@expose(help='Start server')
 	def start(self):
 		server.start()
-
