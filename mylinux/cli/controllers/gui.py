@@ -1,10 +1,10 @@
 from cement.core.controller import expose
 from mylinux.cli.controllers.base import BaseController
-from mylinux import server
+from mylinux import gui
 
-class ServerController(BaseController):
+class GuiController(BaseController):
 	"""Server interface which access internals"""
 
-	@expose(help='Start server')
+	@expose(help='Start gui')
 	def start(self):
-		server.start()
+		gui.start()

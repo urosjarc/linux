@@ -4,9 +4,10 @@ include config/makefile
 ### START DEVELOPING ########
 #============================
 
-init: install-dev ## start virtual environment and install dev. requirements
+init: clean ## start virtual environment and install dev. requirements
 	rm -fr $(VIRTUAL_ENV)
 	virtualenv -p python3 $(VIRTUAL_ENV) --distribute
+	$(MAKE) install
 
 install: clean ## install development libs
 	pip install -r requirements_dev.txt
