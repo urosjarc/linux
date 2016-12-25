@@ -31,7 +31,8 @@ setup(
 		             'mylinux'},
 	entry_points={
 		'console_scripts': [
-			'mylinux=mylinux.cli:main'
+			'mylinux=mylinux.cli:main',
+			'mylinux-qui=mylinux.gui:main'
 		]
 	},
 	include_package_data=False,

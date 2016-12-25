@@ -13,8 +13,11 @@ install: clean ## install development libs
 	pip install -r requirements_dev.txt
 	pip install -e .
 
-run: ## run package script
+run-cli: ## run package script
 	@python mylinux/cli/main.py ${ARGS}
+
+run-gui: ## run package script
+	@python mylinux/gui/main.py ${ARGS}
 
 #============================
 ### TESTING #################
