@@ -9,9 +9,7 @@ with open('README.md') as readme_file:
 
 requirements = [
 	'sh',
-	'flask',
-	'flask-socketio',
-	'eventlet',
+	'pyqt5',
 	'cement==2.10.2'
 ]
 
