@@ -69,7 +69,7 @@ class Client:
 		self.timeout = parent.timeout
 		self.ip = parent.ip
 		self.message, self.address = mainsock.recvfrom(1024)
-		self.logger = utils.get_child_logger(parent.logger, 'Client.{0}'.format(self.address))
+		self.logger = get_child_logger(parent.logger, 'Client.{0}'.format(self.address))
 		self.netboot_directory = parent.netboot_directory
 		self.logger.debug('Recieving request...')
 		self.retries = self.default_retries
@@ -129,8 +129,8 @@ class Client:
 		'''
 		filename = self.message.split(chr(0))[0].lstrip('/')
 		try:
-			filename = utils.normalize_path(self.netboot_directory, filename)
-		except utils.PathTraversalException:
+			filename = normalize_path(self.netboot_directory, filename)
+		except exc.PathTraversalException:
 			self.send_error(2, 'Path traversal error', filename=filename)
 			return False
 		if os.path.lexists(filename) and os.path.isfile(filename):
