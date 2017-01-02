@@ -3,7 +3,6 @@
 from mylinux.cli.main import TestApp
 from cement.utils.test import *
 
-
 class TestCase(CementTestCase):
 	app_class = TestApp
 
