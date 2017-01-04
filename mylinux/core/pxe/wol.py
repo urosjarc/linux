@@ -1,5 +1,5 @@
 import socket
-import struct
+import binascii
 
 
 class WOL(object):
@@ -11,10 +11,9 @@ class WOL(object):
 		self.socket.connect((ip, 0))
 
 	def send(self):
-		msg = ('FF' * 6) + (self.mac * 16) + (self.password)
-		package = ''
-		for i in range(0, len(msg), 2):
-			package += struct.pack(b'B', int(msg[i: i + 2], 16))
+		package = binascii.unhexlify(
+			('FF' * 6) + (self.mac * 16) + (self.password)
+		)
 		self.socket.send(package)
 
 
