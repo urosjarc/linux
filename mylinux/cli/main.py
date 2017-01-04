@@ -3,7 +3,7 @@
 from cement.core.foundation import CementApp
 from cement.utils.misc import init_defaults
 from cement.core.exc import FrameworkError, CaughtSignal
-from mylinux.lib import exc
+from mylinux.core import exc
 
 # Application default.  Should update config/mylinux.conf to reflect any
 # changes, or additions here.

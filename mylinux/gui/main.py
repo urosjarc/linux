@@ -3,7 +3,7 @@ from os import path
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.uic import loadUi
 
-from mylinux.lib import exc
+from mylinux.core import exc
 
 class MainWindow(QMainWindow):
 	def __init__(self):
