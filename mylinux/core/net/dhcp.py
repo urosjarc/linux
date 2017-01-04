@@ -3,7 +3,8 @@ import socket
 class DHCP(object):
 	def __init__(self):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		self.socket.bind(('localhost', 67))
+		self.socket.bind(('0.0.0.0', 67))
+		print(self.socket.getsockname())
 
 	def listen(self):
 		while True:

@@ -10,7 +10,8 @@ with open('README.md') as readme_file:
 requirements = [
 	'sh',
 	'pyqt5',
-	'cement==2.10.2'
+	'cement',
+	'paramiko'
 ]
 
 test_requirements = [
