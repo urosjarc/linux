@@ -3,7 +3,7 @@ import binascii
 
 
 class WOL(object):
-	def __init__(self, mac, ip='255.255.255.255', password=''):
+	def __init__(self, mac, ip='<broadcast>', password=''):
 		self.mac = mac.replace(':', '')
 		self.password = password
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
