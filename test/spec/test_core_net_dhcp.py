@@ -31,4 +31,4 @@ class Test_DHCP_msg:
 			assert dhcp_msg.getMAC() == ['00', '24', '81', 'c1', '4d', '4b']
 			assert dhcp_msg.sname == b'00' * 64
 			assert dhcp_msg.file == b'\x00' * 128
-			assert dhcp_msg.magic_cookie == [63, 82, 53, 63]
+			assert dhcp_msg.magic_cookie == [99, 130, 83, 99]

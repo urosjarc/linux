@@ -40,14 +40,14 @@ class DHCP_msg(object):
 		self.xid = bits.read(32)
 		self.secs = bits.read(16).int
 		self.flags = self.Flags(BROADCAST=bits.read(1).bool, other=bits.read(15).bin)
-		self.ciaddr = bits.readlist(['hex:8' for i in range(4)])
-		self.yiaddr = bits.readlist(['hex:8' for i in range(4)])
-		self.siaddr = bits.readlist(['hex:8' for i in range(4)])
-		self.giaddr = bits.readlist(['hex:8' for i in range(4)])
+		self.ciaddr = bits.readlist(['uint:8' for i in range(4)])
+		self.yiaddr = bits.readlist(['uint:8' for i in range(4)])
+		self.siaddr = bits.readlist(['uint:8' for i in range(4)])
+		self.giaddr = bits.readlist(['uint:8' for i in range(4)])
 		self.chaddr = bits.read(128).bytes
 		self.sname = binascii.hexlify(bits.read(512).bytes)
 		self.file = bits.read(1024).bytes
-		self.magic_cookie = bits.readlist(['hex:8' for i in range(4)])
+		self.magic_cookie = bits.readlist(['uint:8' for i in range(4)])
 
 
 class DHCP(object):
