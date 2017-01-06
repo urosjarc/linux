@@ -29,7 +29,7 @@ test-all: ## run CI tests
 	tox
 
 test-spec: ## run spec tests
-	coverage run --source $(PACKAGE) -m py.test test/spec
+	coverage run --source ./$(PACKAGE) -m py.test test/spec
 	coverage report -m
 	coverage html
 
@@ -37,7 +37,7 @@ test-e2e: ## run e2e tests
 	py.test test/e2e
 
 lint: ## check style with pylint
-	pylint --reports=n --output-format=colorized $(PACKAGE) tests
+	pylint --reports=n --output-format=colorized ./$(PACKAGE) ./tests
 
 dep: ## test dependencies
 	pip list --outdated --format=columns

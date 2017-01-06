@@ -11,7 +11,7 @@ requirements = [
 	'sh',
 	'pyqt5',
 	'cement',
-	'paramiko'
+	'bitstring'
 ]
 
 test_requirements = [

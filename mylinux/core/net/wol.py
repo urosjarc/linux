@@ -12,7 +12,7 @@ class WOL(object):
 
 	def send(self):
 		package = binascii.unhexlify(
-			('FF' * 6) + (self.mac * 16) + (self.password)
+			('FF' * 6) + (self.mac * 16) + self.password
 		)
 		self.socket.send(package)
 
