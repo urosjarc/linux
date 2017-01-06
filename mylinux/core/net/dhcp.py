@@ -1,8 +1,7 @@
 import socket
 import struct
-import io
 from collections import namedtuple
-from bitstring import BitArray
+from bitstring import BitArray, BitStream
 import binascii
 
 
@@ -27,31 +26,36 @@ class DHCP_msg(object):
 		self.options = None  # (? ocet)   Optional parameters filed.
 
 	def deserialize(self, package):
-		pac = io.BytesIO(package)
-		self.op, self.htype, self.hlen, self.hops = struct.unpack('!4B', pac.read(1 + 1 + 1 + 1))
-		self.xid = pac.read(4)
-		self.secs, flags, ciaddr = struct.unpack('!H2s4s', pac.read(2 + 2 + 4))
-		yiaddr, siaddr, giaddr = struct.unpack('!4s4s4s', pac.read(4 + 4 + 4))
-		chaddr = pac.read(16)
-		sname, self.file = struct.unpack('!64s128s', pac.read(64 + 128))
-		self.magic_cookie = struct.unpack('!4s', pac.read(4))
-		
-
-		flagsBits = BitArray(flags)
-		self.flags = self.Flags(
-			BROADCAST=flagsBits[0],
-			other=flagsBits[1:].bin
-		)
-		self.ciaddr = struct.unpack('!4B', ciaddr)
-		self.yiaddr = struct.unpack('!4B', yiaddr)
-		self.siaddr = struct.unpack('!4B', siaddr)
-		self.giaddr = struct.unpack('!4B', giaddr)
-
-		if self.htype == 1: # Ethernet type mac
-			chaddr = binascii.hexlify(chaddr[0:6])
-
-		self.chaddr = tuple(chaddr[i:i+2] for i in range(0, len(chaddr), 2))
-		self.sname = binascii.hexlify(sname)
+		pac = BitStream(package)
+		self.op = pac.read('int:8')
+		self.htype = pac.read('int:8')
+		self.hlen = pac.read('int:8')
+		self.hops = pac.read('int:8')
+		self.xid = pac.read('bytes:4')
+		# self.htype, self.hlen, self.hops = struct.unpack('!3B', pac.read(1 + 1 + 1 + 1))
+		# self.xid = pac.read(4)
+		# self.secs, flags, ciaddr = struct.unpack('!H2s4s', pac.read(2 + 2 + 4))
+		# yiaddr, siaddr, giaddr = struct.unpack('!4s4s4s', pac.read(4 + 4 + 4))
+		# chaddr = pac.read(16)
+		# sname, self.file = struct.unpack('!64s128s', pac.read(64 + 128))
+		# self.magic_cookie = struct.unpack('!4s', pac.read(4))
+		#
+		#
+		# flagsBits = BitArray(flags)
+		# self.flags = self.Flags(
+		# 	BROADCAST=flagsBits[0],
+		# 	other=flagsBits[1:].bin
+		# )
+		# self.ciaddr = struct.unpack('!4B', ciaddr)
+		# self.yiaddr = struct.unpack('!4B', yiaddr)
+		# self.siaddr = struct.unpack('!4B', siaddr)
+		# self.giaddr = struct.unpack('!4B', giaddr)
+		#
+		# if self.htype == 1: # Ethernet type mac
+		# 	chaddr = binascii.hexlify(chaddr[0:6])
+		#
+		# self.chaddr = tuple(chaddr[i:i+2] for i in range(0, len(chaddr), 2))
+		# self.sname = binascii.hexlify(sname)
 
 
 class DHCP(object):
