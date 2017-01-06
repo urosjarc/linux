@@ -23,39 +23,31 @@ class DHCP_msg(object):
 		self.chaddr = None  # (16 ocet)  Client hardware address.
 		self.sname = None  # (64 ocet)  Optional server host name.
 		self.file = None  # (128 ocet) Boot file name used in DHCPOFFER.
+		self.magic_cookie = None  # (4 ocet)
 		self.options = None  # (? ocet)   Optional parameters filed.
 
+	def getMAC(self):
+		return BitArray(self.chaddr).unpack(
+			['hex:8' for i in range(16)]
+		)[0:6]
+
 	def deserialize(self, package):
-		pac = BitStream(package)
-		self.op = pac.read('int:8')
-		self.htype = pac.read('int:8')
-		self.hlen = pac.read('int:8')
-		self.hops = pac.read('int:8')
-		self.xid = pac.read('bytes:4')
-		# self.htype, self.hlen, self.hops = struct.unpack('!3B', pac.read(1 + 1 + 1 + 1))
-		# self.xid = pac.read(4)
-		# self.secs, flags, ciaddr = struct.unpack('!H2s4s', pac.read(2 + 2 + 4))
-		# yiaddr, siaddr, giaddr = struct.unpack('!4s4s4s', pac.read(4 + 4 + 4))
-		# chaddr = pac.read(16)
-		# sname, self.file = struct.unpack('!64s128s', pac.read(64 + 128))
-		# self.magic_cookie = struct.unpack('!4s', pac.read(4))
-		#
-		#
-		# flagsBits = BitArray(flags)
-		# self.flags = self.Flags(
-		# 	BROADCAST=flagsBits[0],
-		# 	other=flagsBits[1:].bin
-		# )
-		# self.ciaddr = struct.unpack('!4B', ciaddr)
-		# self.yiaddr = struct.unpack('!4B', yiaddr)
-		# self.siaddr = struct.unpack('!4B', siaddr)
-		# self.giaddr = struct.unpack('!4B', giaddr)
-		#
-		# if self.htype == 1: # Ethernet type mac
-		# 	chaddr = binascii.hexlify(chaddr[0:6])
-		#
-		# self.chaddr = tuple(chaddr[i:i+2] for i in range(0, len(chaddr), 2))
-		# self.sname = binascii.hexlify(sname)
+		bits = BitStream(package)
+		self.op = bits.read(8).int
+		self.htype = bits.read(8).int
+		self.hlen = bits.read(8).int
+		self.hops = bits.read(8).int
+		self.xid = bits.read(32)
+		self.secs = bits.read(16).int
+		self.flags = self.Flags(BROADCAST=bits.read(1).bool, other=bits.read(15).bin)
+		self.ciaddr = bits.readlist(['hex:8' for i in range(4)])
+		self.yiaddr = bits.readlist(['hex:8' for i in range(4)])
+		self.siaddr = bits.readlist(['hex:8' for i in range(4)])
+		self.giaddr = bits.readlist(['hex:8' for i in range(4)])
+		self.chaddr = bits.read(128).bytes
+		self.sname = binascii.hexlify(bits.read(512).bytes)
+		self.file = bits.read(1024).bytes
+		self.magic_cookie = bits.readlist(['hex:8' for i in range(4)])
 
 
 class DHCP(object):
