@@ -6,14 +6,18 @@ import binascii
 
 
 class DHCP_msg(object):
-	Flags = namedtuple('Flags', ['BROADCAST', 'other'])
+
+	class Label(object):
+		def __init__(self, *form):
+			self.data = None
+			self.format = form
 
 	def __init__(self):
-		self.op = None  # (1 ocet)   Message type. 1=BOOTREQUEST, 2=BOOTREPLY
-		self.htype = None  # (1 ocet)   Hardware address type.
-		self.hlen = None  # (1 ocet)   Hardware address length.
-		self.hops = None  # (1 ocet)   How many times was message relayed by relay agent. MAX=16
-		self.xid = None  # (4 ocet)   Transaction id to associate messages and responses between a client and server.
+		self.op = self.Label('uint:8')  # (1 ocet)   Message type. 1=BOOTREQUEST, 2=BOOTREPLY
+		self.htype = self.Label('uint:8')# (1 ocet)   Hardware address type.
+		self.hlen = self.Label('uint:8')  # (1 ocet)   Hardware address length.
+		self.hops = self.Label('uint:8')  # (1 ocet)   How many times was message relayed by relay agent. MAX=16
+		self.xid = self.Label('bin:32')  # (4 ocet)   Transaction id to associate messages and responses between a client and server.
 		self.secs = None  # (2 ocet)   Seconds elapsed since client began address acqusition or renewal process.
 		self.flags = None  # (2 ocet)   Flags.
 		self.ciaddr = None  # (4 ocet)   Client ip address.
