@@ -15,12 +15,12 @@ def dhcp_msg():
 class Test_DHCP_msg:
 	def test_deserialize(self, dhcp_msg):
 		with open(pathJoin(__file__, '../../resources/DHCDISCOVER.bin'), 'rb') as file:
-			dhcp_msg.deserialize(file.read())
+			dhcp_msg.deserialize(file)
 			assert dhcp_msg.op == 1
 			assert dhcp_msg.htype == 1
 			assert dhcp_msg.hlen == 6
 			assert dhcp_msg.hops == 0
-			assert dhcp_msg.xid != binascii.unhexlify('82c14d4b')
+			assert dhcp_msg.xid == binascii.unhexlify('82c14d4b')
 			# assert dhcp_msg.secs == 4
 			# assert dhcp_msg.flags.BROADCAST == True
 			# assert dhcp_msg.flags.other == '000000000000000'
