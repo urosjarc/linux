@@ -60,14 +60,13 @@ class DHCP(object):
 
 			while True:
 				optNum = bits.read('uint:8')
+				if optNum == 255:
+					break
 				optLen = bits.read('uint:8')
 				optData = bits.read('bits:{}'.format(optLen*8))
 				self.options[optNum] = self.Option(
 					optNum, optLen, optData
 				)
-
-				if optNum == 255:
-					break
 
 
 	def __init__(self):
@@ -87,6 +86,52 @@ class DHCP(object):
 		pass
 
 	def listen(self):
+		'''
+             Field      DHCPOFFER            DHCPACK             DHCPNAK
+             -----      ---------            -------             -------
+             'op'       BOOTREPLY            BOOTREPLY           BOOTREPLY
+             'htype'    (From "Assigned Numbers" RFC)
+             'hlen'     (Hardware address length in octets)
+             'hops'     0                    0                   0
+             'xid'      'xid' from client    'xid' from client   'xid' from client
+             		   DHCPDISCOVER         DHCPREQUEST         DHCPREQUEST
+             		   message              message             message
+             'secs'     0                    0                   0
+             'ciaddr'   0                    'ciaddr' from       0
+             								DHCPREQUEST or 0
+             'yiaddr'   IP address offered   IP address          0
+             		   to client            assigned to client
+             'siaddr'   IP address of next   IP address of next  0
+             		   bootstrap server     bootstrap server
+             'flags'    'flags' from         'flags' from        'flags' from
+             		   client DHCPDISCOVER  client DHCPREQUEST  client DHCPREQUEST
+             		   message              message             message
+             'giaddr'   'giaddr' from        'giaddr' from       'giaddr' from
+             		   client DHCPDISCOVER  client DHCPREQUEST  client DHCPREQUEST
+             		   message              message             message
+             'chaddr'   'chaddr' from        'chaddr' from       'chaddr' from
+             		   client DHCPDISCOVER  client DHCPREQUEST  client DHCPREQUEST
+             		   message              message             message
+             'sname'    Server host name     Server host name    (unused)
+             		   or options           or options
+             'file'     Client boot file     Client boot file    (unused)
+             		   name or options      name or options
+             'options'  options              options
+             Option                    DHCPOFFER    DHCPACK            DHCPNAK
+             ------                    ---------    -------            -------
+             Requested IP address      MUST NOT     MUST NOT           MUST NOT
+             IP address lease time     MUST         MUST (DHCPREQUEST) MUST NOT
+             									   MUST NOT (DHCPINFORM)
+             Use 'file'/'sname' fields MAY          MAY                MUST NOT
+             DHCP message type         DHCPOFFER    DHCPACK            DHCPNAK
+             Parameter request list    MUST NOT     MUST NOT           MUST NOT
+             Message                   SHOULD       SHOULD             SHOULD
+             Client identifier         MUST NOT     MUST NOT           MAY
+             Vendor class identifier   MAY          MAY                MAY
+             Server identifier         MUST         MUST               MUST
+             Maximum message size      MUST NOT     MUST NOT           MUST NOT
+             All others                MAY          MAY                MUST NOT
+		'''
 		while True:
 			package = self.socket.recv(590)
 			if len(package) > 1:

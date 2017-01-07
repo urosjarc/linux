@@ -23,15 +23,18 @@ run-gui: ## run package script
 ### TESTING #################
 #============================
 
-test: test-spec lint ## run test, lint
+test: test-spec-coverage lint ## run test, lint
 
 test-all: ## run CI tests
 	tox
 
-test-spec: ## run spec tests
+test-spec-coverage: ## run spec tests with coverage
 	coverage run --source ./$(PACKAGE) -m py.test test/spec
 	coverage report -m
 	coverage html
+
+test-spec: ## run spec tests
+	pytest test/spec
 
 test-e2e: ## run e2e tests
 	py.test test/e2e
@@ -72,7 +75,7 @@ serve: docs ## compile the docs watching for changes
 ### INTEGRATIONS ############
 #============================
 
-codacy: test-spec ## upload coverage report
+codacy: test-spec-coverage ## upload coverage report
 	coverage xml
 	python-codacy-coverage -r coverage.xml
 

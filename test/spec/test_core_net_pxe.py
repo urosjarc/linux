@@ -37,3 +37,4 @@ class Test_DHCP_msg:
 
 			assert dhcp_msg.options[53].data == ConstBitStream('0x01')
 			assert dhcp_msg.options[57].data == ConstBitStream('0x04ec')
+			assert 255 not in dhcp_msg.options
