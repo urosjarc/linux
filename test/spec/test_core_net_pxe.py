@@ -4,6 +4,7 @@
 import pytest
 from mylinux.core.utils import Path
 import binascii
+from bitstring import ConstBitStream
 
 
 @pytest.fixture
@@ -33,3 +34,6 @@ class Test_DHCP_msg:
 			assert dhcp_msg.sname() == b'\x00' * 64
 			assert dhcp_msg.file() == b'\x00' * 128
 			assert dhcp_msg.magic_cookie() == [99, 130, 83, 99]
+
+			assert dhcp_msg.options[53].data == ConstBitStream('0x01')
+			assert dhcp_msg.options[57].data == ConstBitStream('0x04ec')
