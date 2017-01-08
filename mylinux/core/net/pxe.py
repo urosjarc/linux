@@ -85,16 +85,21 @@ class DHCP(object):
 
 	def OFFER(self, msg):
 		'''
+			http://www.slideshare.net/PeterREgli/rarp-bootp-dhcp
 			DHCPOFFER defined in:
-				- RFC2131, page 27
+				- RFC2131, page 27, 37
 				- PXE specs, page 27
 		'''
+
+		# header
 		msg.op(DHCP.BOOTREPLY)
 		msg.hops(0)
 		msg.secs(0)
 		msg.ciaddr([0,0,0,0])
 		msg.yiaddr(['''client new ip'''])
 		msg.yiaddr(['''next bootstrap server ip'''])
+
+		# options
 		# msg.options['ip address lease time']
 		msg.options['DHCP message type']
 		msg.options['message']
