@@ -2,16 +2,27 @@ import socket
 from bitstring import ConstBitStream
 from mylinux.core.utils import Path
 
+
 class DHCP(object):
+
+	BOOTREQUEST = 1
+	BOOTREPLY = 2
+
 	class Message(object):
+
+		max_size = 576
 
 		class Field(object):
 			def __init__(self, place, form):
 				self.place = place
 				self.format = form
 				self.data = None
-			def __call__(self, *args, **kwargs):
-				return self.data
+
+			def __call__(self, data=None):
+				if data:
+					self.data = data
+				else:
+					return self.data
 
 		class Option(object):
 			def __init__(self, num, length, data):
@@ -19,8 +30,9 @@ class DHCP(object):
 				self.length = length
 				self.data = data
 
-
 		def __init__(self):
+			self.raw = None
+
 			self.op = self.Field(1, 'uint:8')
 			self.htype = self.Field(2, 'uint:8')
 			self.hlen = self.Field(3, 'uint:8')
@@ -40,11 +52,10 @@ class DHCP(object):
 			self.options = {}
 
 		def MAC(self):
-			return {
-				1: self.chaddr.data[0:6]
-			}[self.htype.data]
+			return self.chaddr.data[:self.hlen.data]
 
 		def deserialize(self, package):
+			self.raw = package
 			bits = ConstBitStream(package)
 			labelsSort = {}
 
@@ -63,84 +74,52 @@ class DHCP(object):
 				if optNum == 255:
 					break
 				optLen = bits.read('uint:8')
-				optData = bits.read('bits:{}'.format(optLen*8))
+				optData = bits.read('bits:{}'.format(optLen * 8))
 				self.options[optNum] = self.Option(
 					optNum, optLen, optData
 				)
-
 
 	def __init__(self):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.bind(('0.0.0.0', 67))
 
-	def DISCOVER(self):
+	def OFFER(self, msg):
+		'''
+			DHCPOFFER defined in:
+				- RFC2131, page 27
+				- PXE specs, page 27
+		'''
+		msg.op(DHCP.BOOTREPLY)
+		msg.hops(0)
+		msg.secs(0)
+		msg.ciaddr([0,0,0,0])
+		msg.yiaddr(['''client new ip'''])
+		msg.yiaddr(['''next bootstrap server ip'''])
+		# msg.options['ip address lease time']
+		msg.options['DHCP message type']
+		msg.options['message']
+		msg.options['server identifier']
+
+
+	def REQUEST(self, msg):
 		pass
 
-	def OFFER(self):
-		pass
-
-	def REQUEST(self):
-		pass
-
-	def ACK(self):
+	def ACK(self, msg):
 		pass
 
 	def listen(self):
-		'''
-             Field      DHCPOFFER            DHCPACK             DHCPNAK
-             -----      ---------            -------             -------
-             'op'       BOOTREPLY            BOOTREPLY           BOOTREPLY
-             'htype'    (From "Assigned Numbers" RFC)
-             'hlen'     (Hardware address length in octets)
-             'hops'     0                    0                   0
-             'xid'      'xid' from client    'xid' from client   'xid' from client
-             		   DHCPDISCOVER         DHCPREQUEST         DHCPREQUEST
-             		   message              message             message
-             'secs'     0                    0                   0
-             'ciaddr'   0                    'ciaddr' from       0
-             								DHCPREQUEST or 0
-             'yiaddr'   IP address offered   IP address          0
-             		   to client            assigned to client
-             'siaddr'   IP address of next   IP address of next  0
-             		   bootstrap server     bootstrap server
-             'flags'    'flags' from         'flags' from        'flags' from
-             		   client DHCPDISCOVER  client DHCPREQUEST  client DHCPREQUEST
-             		   message              message             message
-             'giaddr'   'giaddr' from        'giaddr' from       'giaddr' from
-             		   client DHCPDISCOVER  client DHCPREQUEST  client DHCPREQUEST
-             		   message              message             message
-             'chaddr'   'chaddr' from        'chaddr' from       'chaddr' from
-             		   client DHCPDISCOVER  client DHCPREQUEST  client DHCPREQUEST
-             		   message              message             message
-             'sname'    Server host name     Server host name    (unused)
-             		   or options           or options
-             'file'     Client boot file     Client boot file    (unused)
-             		   name or options      name or options
-             'options'  options              options
-             Option                    DHCPOFFER    DHCPACK            DHCPNAK
-             ------                    ---------    -------            -------
-             Requested IP address      MUST NOT     MUST NOT           MUST NOT
-             IP address lease time     MUST         MUST (DHCPREQUEST) MUST NOT
-             									   MUST NOT (DHCPINFORM)
-             Use 'file'/'sname' fields MAY          MAY                MUST NOT
-             DHCP message type         DHCPOFFER    DHCPACK            DHCPNAK
-             Parameter request list    MUST NOT     MUST NOT           MUST NOT
-             Message                   SHOULD       SHOULD             SHOULD
-             Client identifier         MUST NOT     MUST NOT           MAY
-             Vendor class identifier   MAY          MAY                MAY
-             Server identifier         MUST         MUST               MUST
-             Maximum message size      MUST NOT     MUST NOT           MUST NOT
-             All others                MAY          MAY                MUST NOT
-		'''
 		while True:
-			package = self.socket.recv(590)
-			if len(package) > 1:
-				print('-------------------------')
+			package = self.socket.recv(
+				self.Message.max_size
+			)
+
+			if len(package) > 0:
 				msg = self.Message()
 				msg.deserialize(package)
 
+				if msg.op.data == DHCP.BOOTREQUEST:
+					self.OFFER(msg)
+
 
 if __name__ == "__main__":
-	msg = DHCP.Message()
-	with open(Path.join(__file__, '../../resources/DHCDISCOVER.bin'), 'rb') as file:
-		msg.deserialize(file)
+	msg = DHCP()
