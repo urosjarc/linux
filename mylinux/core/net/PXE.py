@@ -45,19 +45,19 @@ class DHCP(object):
 
 		def deserialize(self, binMessage):
 			super(DHCP.Message, self).deserialize(binMessage)
-
-			bits = ConstBitStream(binMessage)
-			magicI = bits.findall(self.magic_cookie())[-1]
-
-			while True:
-				optNum = bits.read('uint:8')
-				if optNum == 255:
-					break
-				optLen = bits.read('uint:8')
-				optData = bits.read('bits:{}'.format(optLen * 8))
-				self.options[optNum] = self.Option(
-					optNum, optLen, optData
-				)
+			#
+			# bits = ConstBitStream(binMessage)
+			# magicI = bits.findall(self.magic_cookie())[-1]
+			#
+			# while True:
+			# 	optNum = bits.read('uint:8')
+			# 	if optNum == 255:
+			# 		break
+			# 	optLen = bits.read('uint:8')
+			# 	optData = bits.read('bits:{}'.format(optLen * 8))
+			# 	self.options[optNum] = self.Option(
+			# 		optNum, optLen, optData
+			# 	)
 
 	def __init__(self):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
