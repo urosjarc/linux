@@ -1,28 +1,16 @@
 import socket
+
 from bitstring import ConstBitStream
-from mylinux.core.utils import Path
+from mylinux.core.utils import BinMessage
 
 
 class DHCP(object):
-
 	BOOTREQUEST = 1
 	BOOTREPLY = 2
 
-	class Message(object):
+	class Message(BinMessage):
 
 		max_size = 576
-
-		class Field(object):
-			def __init__(self, place, form):
-				self.place = place
-				self.format = form
-				self.data = None
-
-			def __call__(self, data=None):
-				if data:
-					self.data = data
-				else:
-					return self.data
 
 		class Option(object):
 			def __init__(self, num, length, data):
@@ -31,7 +19,7 @@ class DHCP(object):
 				self.data = data
 
 		def __init__(self):
-			self.raw = None
+			super(DHCP.Message, self).__init__()
 
 			self.op = self.Field(1, 'uint:8')
 			self.htype = self.Field(2, 'uint:8')
@@ -49,25 +37,17 @@ class DHCP(object):
 			self.sname = self.Field(14, 'bytes:64')
 			self.file = self.Field(15, 'bytes:128')
 			self.magic_cookie = self.Field(16, 'uint:8, uint:8, uint:8, uint:8')
+
 			self.options = {}
 
 		def MAC(self):
 			return self.chaddr.data[:self.hlen.data]
 
-		def deserialize(self, package):
-			self.raw = package
-			bits = ConstBitStream(package)
-			labelsSort = {}
+		def deserialize(self, binMessage):
+			super(DHCP.Message, self).deserialize(binMessage)
 
-			for label in self.__dict__.values():
-				if isinstance(label, self.Field):
-					labelsSort[label.place] = label
-
-			for label in labelsSort.values():
-				if ',' in label.format:
-					label.data = bits.readlist(label.format)
-				else:
-					label.data = bits.read(label.format)
+			bits = ConstBitStream(binMessage)
+			magicI = bits.findall(self.magic_cookie())[-1]
 
 			while True:
 				optNum = bits.read('uint:8')
@@ -95,7 +75,7 @@ class DHCP(object):
 		msg.op(DHCP.BOOTREPLY)
 		msg.hops(0)
 		msg.secs(0)
-		msg.ciaddr([0,0,0,0])
+		msg.ciaddr([0, 0, 0, 0])
 		msg.yiaddr(['''client new ip'''])
 		msg.yiaddr(['''next bootstrap server ip'''])
 
@@ -104,7 +84,6 @@ class DHCP(object):
 		msg.options['DHCP message type']
 		msg.options['message']
 		msg.options['server identifier']
-
 
 	def REQUEST(self, msg):
 		pass

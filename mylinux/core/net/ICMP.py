@@ -1,0 +1,3 @@
+
+class Ping(object):
+	pass

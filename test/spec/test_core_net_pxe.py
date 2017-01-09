@@ -9,13 +9,13 @@ from bitstring import ConstBitStream
 
 @pytest.fixture
 def dhcp_msg():
-	from mylinux.core.net.pxe import DHCP
+	from mylinux.core.net.PXE import DHCP
 	return DHCP.Message()
 
 
 class Test_DHCP_msg:
 	def test_deserialize(self, dhcp_msg):
-		with open(Path.join(__file__, '../../resources/DHCDISCOVER.bin'), 'rb') as file:
+		with open(Path.join(__file__, '../../resources/net/DHCDISCOVER.bin'), 'rb') as file:
 			dhcp_msg.deserialize(file)
 			assert dhcp_msg.op() == 1
 			assert dhcp_msg.htype() == 1
