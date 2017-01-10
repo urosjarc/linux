@@ -1,8 +1,6 @@
 import socket
-
 from bitstring import ConstBitStream
 from mylinux.core.utils import BinMessage
-
 
 class DHCP(object):
 	BOOTREQUEST = 1
@@ -44,20 +42,17 @@ class DHCP(object):
 			return self.chaddr.data[:self.hlen.data]
 
 		def deserialize(self, binMessage):
-			super(DHCP.Message, self).deserialize(binMessage)
-			#
-			# bits = ConstBitStream(binMessage)
-			# magicI = bits.findall(self.magic_cookie())[-1]
-			#
-			# while True:
-			# 	optNum = bits.read('uint:8')
-			# 	if optNum == 255:
-			# 		break
-			# 	optLen = bits.read('uint:8')
-			# 	optData = bits.read('bits:{}'.format(optLen * 8))
-			# 	self.options[optNum] = self.Option(
-			# 		optNum, optLen, optData
-			# 	)
+			bits = super(DHCP.Message, self).deserialize(binMessage)
+
+			while True:
+				optNum = bits.read('uint:8')
+				if optNum == 255:
+					break
+				optLen = bits.read('uint:8')
+				optData = bits.read('bits:{}'.format(optLen * 8))
+				self.options[optNum] = self.Option(
+					optNum, optLen, optData
+				)
 
 	def __init__(self):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

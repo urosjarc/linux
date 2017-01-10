@@ -33,6 +33,8 @@ class BinMessage(object):
 			else:
 				label.data = bits.read(label.format)
 
+		return bits
+
 class Path(object):
 	def join(*paths):
 		return os.path.normpath(
