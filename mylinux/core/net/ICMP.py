@@ -30,12 +30,9 @@ class Echo(BinMessage):
 		bits = BitArray()
 
 		# Structure whole message in bits
-		for label in self.__dict__.values():
-			if isinstance(label, self.Field):
-				bits.append(label.raw())
-
-		print(bits.bytes)
-
+		for label in self.dict().values():
+			print(label.raw())
+			bits.append(label.raw())
 
 		# Calculate sum of inverted 16 bits numbers
 		sum = 0
@@ -43,5 +40,5 @@ class Echo(BinMessage):
 			sum += int(self.ones_complement(part.bin),2)
 
 		# Invert once more
-		return "{0:b}".format(sum)[-15:]
+		return self.ones_complement("{0:b}".format(sum)[-15:])
 

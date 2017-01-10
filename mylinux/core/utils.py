@@ -27,14 +27,19 @@ class BinMessage(object):
 	def __init__(self):
 		self.data = None
 
-	def deserialize(self, binMessage):
-		self.data = binMessage
-		bits = ConstBitStream(binMessage)
+	def dict(self):
 		labelsSort = {}
 
 		for label in self.__dict__.values():
 			if isinstance(label, self.Field):
 				labelsSort[label.place] = label
+
+		return labelsSort
+
+	def deserialize(self, binMessage):
+		self.data = binMessage
+		bits = ConstBitStream(binMessage)
+		labelsSort = self.dict()
 
 		for label in labelsSort.values():
 			if ',' in label.format:
