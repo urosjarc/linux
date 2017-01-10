@@ -4,6 +4,7 @@
 import pytest
 from mylinux.core.utils import Path
 from bitstring import ConstBitStream
+from mylinux.core.net import ICMP
 import binascii
 
 
@@ -38,3 +39,7 @@ class Test_DHCP_msg:
 			assert dhcp_msg.options[53].data == ConstBitStream('0x01')
 			assert dhcp_msg.options[57].data == ConstBitStream('0x04ec')
 			assert 255 not in dhcp_msg.options
+
+	def test_checksum(self):
+		echo = ICMP.Echo()
+		assert echo.get_checksum() == ''

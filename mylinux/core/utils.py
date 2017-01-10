@@ -1,13 +1,20 @@
 import os
-from bitstring import ConstBitStream
+from bitstring import ConstBitStream, pack
 
 class BinMessage(object):
 
 	class Field(object):
-		def __init__(self, place, form):
+		def __init__(self, place, form, data=None):
 			self.place = place
 			self.format = form
-			self.data = None
+			self.data = data
+
+		def raw(self):
+			try:
+				return pack(self.format, self.data)
+			except TypeError:
+				return self.data
+
 
 		def __call__(self, data=None):
 			if data:
