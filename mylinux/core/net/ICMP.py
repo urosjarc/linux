@@ -1,5 +1,5 @@
 from mylinux.core.utils import BinMessage
-from bitstring import BitArray
+from bitstring import BitArray, Bits
 
 
 class Echo(BinMessage):
@@ -18,9 +18,30 @@ class Echo(BinMessage):
 		                       b'\x61\x62\x63\x64\x65\x66\x67\x68\x69\x6a\x6b\x6c\x6d\x6e\x6f\x70\x71\x72\x73\x74\x75\x76\x77\x61\x62\x63\x64\x65\x66\x67\x68\x69'
 		                       )
 
+	def ones_comp_add16(self, num1, num2):
+		MOD = 1 << 16
+		result = num1 + num2
+		return result if result < MOD else (result + 1) % MOD
+
+	def ones_complement(self, bits):
+		return ''.join(['0' if x=='1' else '1' for x in bits])
+
 	def get_checksum(self):
 		bits = BitArray()
+
+		# Structure whole message in bits
 		for label in self.__dict__.values():
 			if isinstance(label, self.Field):
 				bits.append(label.raw())
-		return bits
+
+		print(bits.bytes)
+
+
+		# Calculate sum of inverted 16 bits numbers
+		sum = 0
+		for part in bits.cut(16):
+			sum += int(self.ones_complement(part.bin),2)
+
+		# Invert once more
+		return "{0:b}".format(sum)[-15:]
+
