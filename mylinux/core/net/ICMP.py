@@ -16,30 +16,28 @@ class Echo(BinMessage):
 		# DATA
 		self.data = self.Field(6, 'bytes:32', b'abcdefghijklmnopqrstuvwabcdefghi')
 
-	def ones_comp_add16(self, num1, num2):
+	def _ones_comp_add16(self, num1, num2):
 		MOD = 1 << 16
 		result = num1 + num2
 		return result if result < MOD else (result + 1) % MOD
 
-
-	def invert(self, bits):
-		return ''.join(['0' if x == '1' else '1' for x in Bits(bin=self.raw()).bin])
+	def _ones_comp(self, bits):
+		return ''.join(['0' if x == '1' else '1' for x in bits])
 
 	def get_checksum(self):
+		'''
+			bits.cut(16) naredi zadnji element 1 stopnjo manjsega zato ni pravi rezultat.
+		'''
 		bits = BitArray()
 
 		# Structure whole message in bits
 		for field in self.get_fields():
-			print(field.raw())
-			bits.append(field.raw())
+			bits.append(field.data)
 
 		# Calculate sum of inverted 16 bits numbers
 		sum = 0
 		for part in bits.cut(16):
-			sum = self.ones_comp_add16(
-				sum,
-				int(self.ones_complement(part.bin), 2)
-			)
+			sum = self._ones_comp_add16(sum, part.int)
 
 		# Invert once more
-		return self.ones_complement("{0:b}".format(sum)[-15:])
+		return self._ones_comp("{0:b}".format(sum)[-15:])

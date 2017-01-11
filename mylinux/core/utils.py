@@ -1,5 +1,5 @@
 import os
-from bitstring import ConstBitStream, pack, Bits
+from bitstring import ConstBitStream, pack, Bits, ConstBitArray
 
 
 class BinMessage(object):
@@ -10,11 +10,11 @@ class BinMessage(object):
 
 			self.place = place
 			self.format = form
-			self.data = None if data==None else Bits(bytes=pack(self.format, self.data))
+			self.data = None if data==None else ConstBitArray(pack(form, data))
 
 		def __call__(self, data=None):
 			if data:
-				self.data = Bits(bytes=pack(self.format, data))
+				self.data = ConstBitArray(pack(self.format, data))
 			else:
 				return self.data
 
@@ -26,7 +26,7 @@ class BinMessage(object):
 
 		for label in self.__dict__.values():
 			if isinstance(label, self.Field):
-				fields[label.place] = label
+				fields[label.place - 1] = label
 
 		return fields
 
