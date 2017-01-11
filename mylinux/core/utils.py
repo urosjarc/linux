@@ -10,11 +10,20 @@ class BinMessage(object):
 
 			self.place = place
 			self.format = form
-			self.data = None if data==None else ConstBitArray(pack(form, data))
+			self.data = data
+			self.raw = None if data == None else self._set_raw(data)
 
-		def __call__(self, data=None):
-			if data:
-				self.data = ConstBitArray(pack(self.format, data))
+		def _set_raw(self, data):
+			if isinstance(data, list):
+				packArgs = (tuple([self.format]) + tuple(data))
+				self.raw = ConstBitArray(bytes=pack(*packArgs))
+			else:
+				self.raw = ConstBitArray(bytes=pack(self.format, data))
+
+		def __call__(self, **kwargs):
+			if 'data' in kwargs:
+				self.data = kwargs.get('data')
+				self._set_raw(self.data)
 			else:
 				return self.data
 
@@ -22,24 +31,23 @@ class BinMessage(object):
 		self.data = None
 
 	def get_fields(self):
-		fields = [None] * len(self.__dict__)
+		fields = []
 
 		for label in self.__dict__.values():
 			if isinstance(label, self.Field):
-				fields[label.place - 1] = label
+				fields.append(label)
 
-		return fields
+		return sorted(fields, key=lambda x: x.place)
 
 	def deserialize(self, binMessage):
 		self.data = binMessage
 		bits = ConstBitStream(binMessage)
-		fields = self.get_fields()
 
-		for field in fields:
+		for field in self.get_fields():
 			if ',' in field.format:
-				field.data = bits.readlist(field.format)
+				field(data=bits.readlist(field.format))
 			else:
-				field.data = bits.read(field.format)
+				field(data=bits.read(field.format))
 
 		return bits
 

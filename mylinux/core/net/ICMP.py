@@ -32,7 +32,8 @@ class Echo(BinMessage):
 
 		# Structure whole message in bits
 		for field in self.get_fields():
-			bits.append(field.data)
+			print(field())
+			bits.append(field())
 
 		# Calculate sum of inverted 16 bits numbers
 		sum = 0
