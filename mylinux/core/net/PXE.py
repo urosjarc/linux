@@ -39,7 +39,7 @@ class DHCP(object):
 			self.options = {}
 
 		def MAC(self):
-			return self.chaddr.data[:self.hlen.data]
+			return self.chaddr._data[:self.hlen._data]
 
 		def deserialize(self, binMessage):
 			bits = super(DHCP.Message, self).deserialize(binMessage)
@@ -96,7 +96,7 @@ class DHCP(object):
 				msg = self.Message()
 				msg.deserialize(package)
 
-				if msg.op.data == DHCP.BOOTREQUEST:
+				if msg.op._data == DHCP.BOOTREQUEST:
 					self.OFFER(msg)
 
 

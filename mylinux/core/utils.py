@@ -10,7 +10,7 @@ class BinMessage(object):
 
 			self.place = place
 			self.format = form
-			self.data = data
+			self._data = data
 			self.raw = None if data == None else self._set_raw(data)
 
 		def _set_raw(self, data):
@@ -22,10 +22,10 @@ class BinMessage(object):
 
 		def __call__(self, **kwargs):
 			if 'data' in kwargs:
-				self.data = kwargs.get('data')
-				self._set_raw(self.data)
+				self._data = kwargs.get('data')
+				self._set_raw(self._data)
 			else:
-				return self.data
+				return self._data
 
 	def __init__(self):
 		self.data = None

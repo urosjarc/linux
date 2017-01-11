@@ -32,13 +32,12 @@ class Echo(BinMessage):
 
 		# Structure whole message in bits
 		for field in self.get_fields():
-			print(field())
 			bits.append(field())
 
 		# Calculate sum of inverted 16 bits numbers
 		sum = 0
 		for part in bits.cut(16):
-			sum = self._ones_comp_add16(sum, part.int)
+			sum = self._ones_comp_add16(sum, int(self._ones_comp(part.bin),2))
 
 		# Invert once more
 		return self._ones_comp("{0:b}".format(sum)[-15:])
