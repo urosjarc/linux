@@ -42,4 +42,4 @@ class Test_DHCP_msg:
 
 	def test_checksum(self):
 		echo = ICMP.Echo()
-		assert echo.get_checksum() == '100001001011100'
+		assert echo.get_checksum() == '100001011000101'

@@ -31,7 +31,7 @@ class DHCP(object):
 			self.yiaddr = self.Field(10, 'uint:8, uint:8, uint:8, uint:8')
 			self.siaddr = self.Field(11, 'uint:8, uint:8, uint:8, uint:8')
 			self.giaddr = self.Field(12, 'uint:8, uint:8, uint:8, uint:8')
-			self.chaddr = self.Field(13, ', '.join(['hex:8' for i in range(16)]))
+			self.chaddr = self.Field(13, ', '.join(['hex:8'] * 16))
 			self.sname = self.Field(14, 'bytes:64')
 			self.file = self.Field(15, 'bytes:128')
 			self.magic_cookie = self.Field(16, 'uint:8, uint:8, uint:8, uint:8')

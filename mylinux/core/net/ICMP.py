@@ -9,36 +9,37 @@ class Echo(BinMessage):
 		# HEADER
 		self.type = self.Field(1, 'uint:8', 8)
 		self.code = self.Field(2, 'uint:8', 0)
-		self.checksum = self.Field(3, 'uint:16', 0)
-		self.identifier = self.Field(4, 'bin:16', b'\x02\x00')
-		self.sequence_num = self.Field(5, 'bin:16', b'\x09\x00')
+		self.checksum = self.Field(3, 'bytes:2', b'\x00\x00')
+		self.identifier = self.Field(4, 'bytes:2', b'\x02\x00')
+		self.sequence_num = self.Field(5, 'bytes:2', b'\x09\x00')
 
 		# DATA
-		self.data = self.Field(6, 'bin:16',
-		                       b'\x61\x62\x63\x64\x65\x66\x67\x68\x69\x6a\x6b\x6c\x6d\x6e\x6f\x70\x71\x72\x73\x74\x75\x76\x77\x61\x62\x63\x64\x65\x66\x67\x68\x69'
-		                       )
+		self.data = self.Field(6, 'bytes:32', b'abcdefghijklmnopqrstuvwabcdefghi')
 
 	def ones_comp_add16(self, num1, num2):
 		MOD = 1 << 16
 		result = num1 + num2
 		return result if result < MOD else (result + 1) % MOD
 
-	def ones_complement(self, bits):
-		return ''.join(['0' if x=='1' else '1' for x in bits])
+
+	def invert(self, bits):
+		return ''.join(['0' if x == '1' else '1' for x in Bits(bin=self.raw()).bin])
 
 	def get_checksum(self):
 		bits = BitArray()
 
 		# Structure whole message in bits
-		for label in self.dict().values():
-			print(label.raw())
-			bits.append(label.raw())
+		for field in self.get_fields():
+			print(field.raw())
+			bits.append(field.raw())
 
 		# Calculate sum of inverted 16 bits numbers
 		sum = 0
 		for part in bits.cut(16):
-			sum += int(self.ones_complement(part.bin),2)
+			sum = self.ones_comp_add16(
+				sum,
+				int(self.ones_complement(part.bin), 2)
+			)
 
 		# Invert once more
 		return self.ones_complement("{0:b}".format(sum)[-15:])
-
