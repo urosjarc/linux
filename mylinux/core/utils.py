@@ -5,20 +5,21 @@ from bitstring import ConstBitStream, pack, Bits, ConstBitArray
 class BinMessage(object):
 
 	class Field(object):
-		def __init__(self, place, form, data=None):
-			super(BinMessage.Field, self).__init__()
-
+		def __init__(self, place, form, data=None): # If (data==0) => data == None, so kwargs is needed
 			self.place = place
 			self.format = form
 			self._data = data
-			self.raw = None if data == None else self._set_raw(data)
+			self.raw = None
+
+			self._set_raw(data)
 
 		def _set_raw(self, data):
-			if isinstance(data, list):
-				packArgs = (tuple([self.format]) + tuple(data))
-				self.raw = ConstBitArray(bytes=pack(*packArgs))
-			else:
-				self.raw = ConstBitArray(bytes=pack(self.format, data))
+			if data is not None:
+				if isinstance(data, list):
+					packArgs = (tuple([self.format]) + tuple(data))
+					self.raw = ConstBitArray(pack(*packArgs))
+				else:
+					self.raw = ConstBitArray(pack(self.format, data))
 
 		def __call__(self, **kwargs):
 			if 'data' in kwargs:

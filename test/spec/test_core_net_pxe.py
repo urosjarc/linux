@@ -3,7 +3,7 @@
 
 import pytest
 from mylinux.core.utils import Path
-from bitstring import ConstBitStream
+from bitstring import ConstBitStream, ConstBitArray
 from mylinux.core.net import ICMP
 import binascii
 
@@ -42,4 +42,4 @@ class Test_DHCP_msg:
 
 	def test_checksum(self):
 		echo = ICMP.Echo()
-		assert echo.get_checksum() == '100001011000101'
+		assert echo.get_checksum() == '0100001001011100'

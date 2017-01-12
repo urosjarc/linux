@@ -7,8 +7,8 @@ class Echo(BinMessage):
 		super(Echo, self).__init__()
 
 		# HEADER
-		self.type = self.Field(1, 'uint:8', 8)
-		self.code = self.Field(2, 'uint:8', 0)
+		self.type = self.Field(1, 'uint:8', 0x08)
+		self.code = self.Field(2, 'uint:8', 0x00)
 		self.checksum = self.Field(3, 'bytes:2', b'\x00\x00')
 		self.identifier = self.Field(4, 'bytes:2', b'\x02\x00')
 		self.sequence_num = self.Field(5, 'bytes:2', b'\x09\x00')
@@ -32,6 +32,7 @@ class Echo(BinMessage):
 
 		# Structure whole message in bits
 		for field in self.get_fields():
+			print(field.raw.bytes)
 			bits.append(field())
 
 		# Calculate sum of inverted 16 bits numbers
@@ -40,4 +41,4 @@ class Echo(BinMessage):
 			sum = self._ones_comp_add16(sum, int(self._ones_comp(part.bin),2))
 
 		# Invert once more
-		return self._ones_comp("{0:b}".format(sum)[-15:])
+		return self._ones_comp("{0:b}".format(sum)[-16:])
