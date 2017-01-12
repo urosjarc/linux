@@ -26,15 +26,17 @@ class Echo(BinMsg):
 		self.serialize()
 
 	def request(self):
+		print('------')
+		raise Exception(self.package)
 		self.socket.sendto(self.package, ('192.168.1.2', 1))
-		while True:
-			package = self.socket.recv(1024)
-
-			if len(package) > 0:
-				response = Echo()
-				response.deserialize(package)
-				print('------------')
-				print(response.type)
+		# while True:
+		# 	package = self.socket.recv(1024)
+		#
+		# 	if len(package) > 0:
+		# 		response = Echo()
+		# 		response.deserialize(package)
+		# 		print('------------')
+		# 		print(response.type)
 
 
 	def _init_checksum(self):
