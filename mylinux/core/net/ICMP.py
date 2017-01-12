@@ -25,20 +25,22 @@ class Echo(BinMessage):
 		return ''.join(['0' if x == '1' else '1' for x in bits])
 
 	def get_checksum(self):
-		'''
-			bits.cut(16) naredi zadnji element 1 stopnjo manjsega zato ni pravi rezultat.
-		'''
 		bits = BitArray()
+
+		# Throw error if data length is not divided by 16
+		dataLen = len(self.data.raw)
+		if dataLen % 16 != 0:
+			raise Exception('Echo "data" field length({}) is not divided by 16'.format(dataLen))
 
 		# Structure whole message in bits
 		for field in self.get_fields():
 			print(field.raw.bytes)
-			bits.append(field())
+			bits.append(field.raw)
 
 		# Calculate sum of inverted 16 bits numbers
-		sum = 0
+		compSum = 0
 		for part in bits.cut(16):
-			sum = self._ones_comp_add16(sum, int(self._ones_comp(part.bin),2))
+			compSum = self._ones_comp_add16(compSum, int(self._ones_comp(part.bin),2))
 
 		# Invert once more
-		return self._ones_comp("{0:b}".format(sum)[-16:])
+		return Bits(uint=compSum, length=15)

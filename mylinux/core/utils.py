@@ -1,5 +1,5 @@
 import os
-from bitstring import ConstBitStream, pack, Bits, ConstBitArray
+from bitstring import ConstBitStream, pack, Bits
 
 
 class BinMessage(object):
@@ -17,9 +17,9 @@ class BinMessage(object):
 			if data is not None:
 				if isinstance(data, list):
 					packArgs = (tuple([self.format]) + tuple(data))
-					self.raw = ConstBitArray(pack(*packArgs))
+					self.raw = Bits(pack(*packArgs))
 				else:
-					self.raw = ConstBitArray(pack(self.format, data))
+					self.raw = Bits(pack(self.format, data))
 
 		def __call__(self, **kwargs):
 			if 'data' in kwargs:
