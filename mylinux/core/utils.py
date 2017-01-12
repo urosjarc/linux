@@ -2,31 +2,33 @@ import os
 from bitstring import ConstBitStream, pack, Bits
 
 
-class BinMessage(object):
+class BinMsg(object):
 
 	class Field(object):
 		def __init__(self, place, form, data=None): # If (data==0) => data == None, so kwargs is needed
 			self.place = place
 			self.format = form
-			self._data = data
+			self.value = None
 			self.raw = None
 
-			self._set_raw(data)
+			self.set(data)
 
-		def _set_raw(self, data):
-			if data is not None:
-				if isinstance(data, list):
-					packArgs = (tuple([self.format]) + tuple(data))
+		def set(self, value=None):
+			if value is not None:
+				self.value = value
+				if isinstance(value, list):
+					packArgs = (tuple([self.format]) + tuple(value))
 					self.raw = Bits(pack(*packArgs))
 				else:
-					self.raw = Bits(pack(self.format, data))
-
-		def __call__(self, **kwargs):
-			if 'data' in kwargs:
-				self._data = kwargs.get('data')
-				self._set_raw(self._data)
+					self.raw = Bits(pack(self.format, value))
 			else:
-				return self._data
+				return self.value
+
+	@staticmethod
+	def ones_comp_add(num1, num2, length=16):
+		MOD = 1 << length
+		result = num1 + num2
+		return result if result < MOD else (result + 1) % MOD
 
 	def __init__(self):
 		self.data = None
@@ -46,9 +48,9 @@ class BinMessage(object):
 
 		for field in self.get_fields():
 			if ',' in field.format:
-				field(data=bits.readlist(field.format))
+				field.set(value=bits.readlist(field.format))
 			else:
-				field(data=bits.read(field.format))
+				field.set(value=bits.read(field.format))
 
 		return bits
 

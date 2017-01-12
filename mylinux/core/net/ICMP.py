@@ -1,8 +1,8 @@
-from mylinux.core.utils import BinMessage
+from mylinux.core.utils import BinMsg
 from bitstring import BitArray, Bits
 
 
-class Echo(BinMessage):
+class Echo(BinMsg):
 	def __init__(self):
 		super(Echo, self).__init__()
 
@@ -16,15 +16,9 @@ class Echo(BinMessage):
 		# DATA
 		self.data = self.Field(6, 'bytes:32', b'abcdefghijklmnopqrstuvwabcdefghi')
 
-	def _ones_comp_add16(self, num1, num2):
-		MOD = 1 << 16
-		result = num1 + num2
-		return result if result < MOD else (result + 1) % MOD
+		self._init_checksum()
 
-	def _ones_comp(self, bits):
-		return ''.join(['0' if x == '1' else '1' for x in bits])
-
-	def get_checksum(self):
+	def _init_checksum(self):
 		bits = BitArray()
 
 		# Throw error if data length is not divided by 16
@@ -34,13 +28,17 @@ class Echo(BinMessage):
 
 		# Structure whole message in bits
 		for field in self.get_fields():
-			print(field.raw.bytes)
 			bits.append(field.raw)
 
 		# Calculate sum of inverted 16 bits numbers
 		compSum = 0
 		for part in bits.cut(16):
-			compSum = self._ones_comp_add16(compSum, int(self._ones_comp(part.bin),2))
+			compSum = self.ones_comp_add(compSum, part.int)
 
 		# Invert once more
-		return Bits(uint=compSum, length=15)
+		compSumBits = BitArray(bin=format(compSum, '016b'))
+		for i in range(len(compSumBits)):
+			compSumBits[i] = True if compSumBits[i] == False else False
+
+		# Set cheksum data
+		self.checksum.set(compSumBits.bytes)

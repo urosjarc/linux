@@ -1,12 +1,12 @@
 import socket
 from bitstring import ConstBitStream
-from mylinux.core.utils import BinMessage
+from mylinux.core.utils import BinMsg
 
 class DHCP(object):
 	BOOTREQUEST = 1
 	BOOTREPLY = 2
 
-	class Message(BinMessage):
+	class Message(BinMsg):
 
 		max_size = 576
 
@@ -36,13 +36,14 @@ class DHCP(object):
 			self.file = self.Field(15, 'bytes:128')
 			self.magic_cookie = self.Field(16, 'uint:8, uint:8, uint:8, uint:8')
 
-			self.options = {}
+			self.mac = None
 
-		def MAC(self):
-			return self.chaddr._data[:self.hlen._data]
+			self.options = {}
 
 		def deserialize(self, binMessage):
 			bits = super(DHCP.Message, self).deserialize(binMessage)
+
+			self.mac = self.chaddr.value[:self.hlen.value]
 
 			while True:
 				optNum = bits.read('uint:8')
@@ -96,7 +97,7 @@ class DHCP(object):
 				msg = self.Message()
 				msg.deserialize(package)
 
-				if msg.op._data == DHCP.BOOTREQUEST:
+				if msg.op.value == DHCP.BOOTREQUEST:
 					self.OFFER(msg)
 
 

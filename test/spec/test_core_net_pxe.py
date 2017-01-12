@@ -18,23 +18,23 @@ class Test_DHCP_msg:
 	def test_deserialize(self, dhcp_msg):
 		with open(Path.join(__file__, '../../resources/net/DHCDISCOVER.bin'), 'rb') as file:
 			dhcp_msg.deserialize(file)
-			assert dhcp_msg.op() == 1
-			assert dhcp_msg.htype() == 1
-			assert dhcp_msg.hlen() == 6
-			assert dhcp_msg.hops() == 0
-			assert dhcp_msg.xid() == binascii.unhexlify('82c14d4b')
-			assert dhcp_msg.secs() == 4
-			assert dhcp_msg.flag_BROADCAST() == True
-			assert dhcp_msg.flag_NULL() == 0
-			assert dhcp_msg.ciaddr() == [00, 00, 00, 00]
-			assert dhcp_msg.yiaddr() == [00, 00, 00, 00]
-			assert dhcp_msg.siaddr() == [00, 00, 00, 00]
-			assert dhcp_msg.giaddr() == [00, 00, 00, 00]
-			assert dhcp_msg.chaddr() == ['00', '24', '81', 'c1', '4d', '4b'] + ['00' for i in range(10)]
-			assert dhcp_msg.MAC() == ['00', '24', '81', 'c1', '4d', '4b']
-			assert dhcp_msg.sname() == b'\x00' * 64
-			assert dhcp_msg.file() == b'\x00' * 128
-			assert dhcp_msg.magic_cookie() == [99, 130, 83, 99]
+			assert dhcp_msg.op.value == 1
+			assert dhcp_msg.htype.value == 1
+			assert dhcp_msg.hlen.value == 6
+			assert dhcp_msg.hops.value == 0
+			assert dhcp_msg.xid.value == binascii.unhexlify('82c14d4b')
+			assert dhcp_msg.secs.value == 4
+			assert dhcp_msg.flag_BROADCAST.value == True
+			assert dhcp_msg.flag_NULL.value == 0
+			assert dhcp_msg.ciaddr.value == [00, 00, 00, 00]
+			assert dhcp_msg.yiaddr.value == [00, 00, 00, 00]
+			assert dhcp_msg.siaddr.value == [00, 00, 00, 00]
+			assert dhcp_msg.giaddr.value == [00, 00, 00, 00]
+			assert dhcp_msg.chaddr.value == ['00', '24', '81', 'c1', '4d', '4b'] + ['00' for i in range(10)]
+			assert dhcp_msg.mac == ['00', '24', '81', 'c1', '4d', '4b']
+			assert dhcp_msg.sname.value == b'\x00' * 64
+			assert dhcp_msg.file.value == b'\x00' * 128
+			assert dhcp_msg.magic_cookie.value == [99, 130, 83, 99]
 
 			assert dhcp_msg.options[53].data == ConstBitStream('0x01')
 			assert dhcp_msg.options[57].data == ConstBitStream('0x04ec')
@@ -42,4 +42,4 @@ class Test_DHCP_msg:
 
 	def test_checksum(self):
 		echo = ICMP.Echo()
-		assert echo.get_checksum() == '100001001011100'
+		assert echo.checksum.value == b'\x42\x5c'
