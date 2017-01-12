@@ -1,3 +1,4 @@
+import socket
 from mylinux.core.utils import BinMsg
 from bitstring import BitArray, Bits
 
@@ -5,6 +6,11 @@ from bitstring import BitArray, Bits
 class Echo(BinMsg):
 	def __init__(self):
 		super(Echo, self).__init__()
+
+		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.socket.connect(('<broadcast>', 0))
 
 		# HEADER
 		self.type = self.Field(1, 'uint:8', 0x08)
@@ -17,6 +23,19 @@ class Echo(BinMsg):
 		self.data = self.Field(6, 'bytes:32', b'abcdefghijklmnopqrstuvwabcdefghi')
 
 		self._init_checksum()
+		self.serialize()
+
+	def request(self):
+		self.socket.sendto(self.package, ('192.168.1.2', 1))
+		while True:
+			package = self.socket.recv(1024)
+
+			if len(package) > 0:
+				response = Echo()
+				response.deserialize(package)
+				print('------------')
+				print(response.type)
+
 
 	def _init_checksum(self):
 		bits = BitArray()
@@ -42,3 +61,7 @@ class Echo(BinMsg):
 
 		# Set cheksum data
 		self.checksum.set(compSumBits.bytes)
+
+if __name__ == '__main__':
+	echo = Echo()
+	echo.request()

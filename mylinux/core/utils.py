@@ -1,5 +1,5 @@
 import os
-from bitstring import ConstBitStream, pack, Bits
+from bitstring import ConstBitStream, pack, Bits, BitArray
 
 
 class BinMsg(object):
@@ -31,7 +31,7 @@ class BinMsg(object):
 		return result if result < MOD else (result + 1) % MOD
 
 	def __init__(self):
-		self.data = None
+		self.package = None
 
 	def get_fields(self):
 		fields = []
@@ -42,8 +42,17 @@ class BinMsg(object):
 
 		return sorted(fields, key=lambda x: x.place)
 
+	def serialize(self):
+		package = BitArray()
+
+		for field in self.get_fields():
+			package.append(field.raw)
+
+		self.package = package.bytes
+
+
 	def deserialize(self, binMessage):
-		self.data = binMessage
+		self.package = binMessage
 		bits = ConstBitStream(binMessage)
 
 		for field in self.get_fields():

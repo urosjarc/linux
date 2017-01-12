@@ -43,3 +43,7 @@ class Test_DHCP_msg:
 	def test_checksum(self):
 		echo = ICMP.Echo()
 		assert echo.checksum.value == b'\x42\x5c'
+
+	def test_echo(self):
+		echo = ICMP.Echo()
+		echo.request()
