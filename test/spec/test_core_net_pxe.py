@@ -11,7 +11,7 @@ import binascii
 @pytest.fixture
 def dhcp_msg():
 	from mylinux.core.net.PXE import DHCP
-	return DHCP.Message()
+	return DHCP.Msg()
 
 
 class Test_DHCP_msg:

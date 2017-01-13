@@ -7,7 +7,7 @@ class DHCP(object):
 	BOOTREQUEST = 1
 	BOOTREPLY = 2
 
-	class Message(BinMsg):
+	class Msg(BinMsg):
 
 		max_size = 576
 
@@ -18,7 +18,7 @@ class DHCP(object):
 				self.data = data
 
 		def __init__(self):
-			super(DHCP.Message, self).__init__()
+			super(DHCP.Msg, self).__init__()
 
 			self.op = self.Field(1, 'uint:8')
 			self.htype = self.Field(2, 'uint:8')
@@ -42,7 +42,7 @@ class DHCP(object):
 			self.options = {}
 
 		def deserialize(self, binMessage):
-			bits = super(DHCP.Message, self).deserialize(binMessage)
+			bits = super(DHCP.Msg, self).deserialize(binMessage)
 
 			self.mac = self.chaddr.value[:self.hlen.value]
 
@@ -91,10 +91,13 @@ class DHCP(object):
 
 		# OPTIONS
 
-		# msg.options['ip address lease time']
-		msg.options['DHCP message type']
-		msg.options['message']
-		msg.options['server identifier']
+		msg.options = {
+			53: self.Msg.Option(53, 1, b'2'),  # DHCP Mesage type = DCHPOFFER
+			54: self.Msg.Option(54, 4, msg.siaddr.raw.bytes),  # Server identifier ?= siaddr ?= inet ip of this DHCP server
+			97: self.Msg.Option(97, 17, msg.htype.raw.bytes),  # Client machine identifier.
+			60: self.Msg.Option(60, 9, b'PXEClient'), # Class identifier
+			...
+		}
 
 	def REQUEST(self, msg):
 		pass
@@ -105,11 +108,11 @@ class DHCP(object):
 	def listen(self):
 		while True:
 			package = self.socket.recv(
-				self.Message.max_size
+				self.Msg.max_size
 			)
 
 			if len(package) > 0:
-				msg = self.Message()
+				msg = self.Msg()
 				msg.deserialize(package)
 
 				if msg.op.value == DHCP.BOOTREQUEST:
