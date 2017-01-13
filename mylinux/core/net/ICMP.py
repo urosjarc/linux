@@ -7,10 +7,15 @@ class Echo(BinMsg):
 	def __init__(self):
 		super(Echo, self).__init__()
 
-		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		# SOCKET
+		self.host = '192.168.1.255'
+		# self.host = socket.gethostbyname(
+		# 	socket.gethostname()
+		# )
+		self.socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.socket.connect(('<broadcast>', 0))
+		self.socket.bind((self.host, 0))
 
 		# HEADER
 		self.type = self.Field(1, 'uint:8', 0x08)
@@ -20,23 +25,16 @@ class Echo(BinMsg):
 		self.sequence_num = self.Field(5, 'bytes:2', b'\x09\x00')
 
 		# DATA
-		self.data = self.Field(6, 'bytes:32', b'abcdefghijklmnopqrstuvwabcdefghi')
+		msg = b'mylinux ping request'
+		self.data = self.Field(6, 'bytes:{}'.format(len(msg)), msg)
 
 		self._init_checksum()
 		self.serialize()
 
 	def request(self):
-		print('------')
-		raise Exception(self.package)
-		self.socket.sendto(self.package, ('192.168.1.2', 1))
-		# while True:
-		# 	package = self.socket.recv(1024)
-		#
-		# 	if len(package) > 0:
-		# 		response = Echo()
-		# 		response.deserialize(package)
-		# 		print('------------')
-		# 		print(response.type)
+		self.socket.sendto(self.package, ('192.168.1.255', 0))
+		package, address = self.socket.recvfrom(1024)
+		raise Exception((address, self.host))
 
 
 	def _init_checksum(self):

@@ -8,7 +8,7 @@ class WOL(object):
 		self.password = password
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-		self.socket.connect((ip, 0))
+		self.socket.connect((ip, 9))
 
 	def send(self):
 		package = binascii.unhexlify(
