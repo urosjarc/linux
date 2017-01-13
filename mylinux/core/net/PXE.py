@@ -2,6 +2,7 @@ import socket
 from bitstring import ConstBitStream
 from mylinux.core.utils import BinMsg
 
+
 class DHCP(object):
 	BOOTREQUEST = 1
 	BOOTREPLY = 2
@@ -56,26 +57,40 @@ class DHCP(object):
 				)
 
 	def __init__(self):
+		self.pxe_client_ip = [192, 168, 1, 101]
+		self.tftp_ip = [192, 168, 1, 100]
+
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
 		self.socket.bind(('0.0.0.0', 67))
 
 	def OFFER(self, msg):
 		'''
 			http://www.slideshare.net/PeterREgli/rarp-bootp-dhcp
 			DHCPOFFER defined in:
-				- RFC2131, page 27, 37
+				- DHCP specs, page 27, 37
 				- PXE specs, page 27
 		'''
 
-		# header
+		# HEADERS
+
 		msg.op(DHCP.BOOTREPLY)
+		# htype = DHCPDISCOVER
+		# hlen = DHCPDISCOVER
 		msg.hops(0)
+		# xid = DHCPDISCOVER
 		msg.secs(0)
 		msg.ciaddr([0, 0, 0, 0])
-		msg.yiaddr(['''client new ip'''])
-		msg.yiaddr(['''next bootstrap server ip'''])
+		msg.yiaddr(self.pxe_client_ip)
+		msg.siaddr(self.tftp_ip)
+		# flags = DHCPDISCOVER
+		# giaddr = DHCPDISCOVER
+		# shaddr = DHCPDISCOVER
+		# sname = DHCPDISCOVER = empty
+		# file = DHCPDISCOVER = empty
 
-		# options
+		# OPTIONS
+
 		# msg.options['ip address lease time']
 		msg.options['DHCP message type']
 		msg.options['message']
