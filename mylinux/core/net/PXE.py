@@ -20,25 +20,39 @@ class DHCP(object):
 		def __init__(self):
 			super(DHCP.Msg, self).__init__()
 
+			self.mac = None
+
+			# Message type (BOOTREQUEST, BOOTREPLY)
 			self.op = self.Field(1, 'uint:8')
+			# Hardware type
 			self.htype = self.Field(2, 'uint:8')
+			# Hardware address length
 			self.hlen = self.Field(3, 'uint:8')
+			# Gateway hops
 			self.hops = self.Field(4, 'uint:8')
+			# Transaction ID
 			self.xid = self.Field(5, 'bytes:4')
+			# Seconds elapsed since client started trying to boot, filled by client
 			self.secs = self.Field(6, 'uint:16')
 			self.flag_BROADCAST = self.Field(7, '1')
 			self.flag_NULL = self.Field(8, '15')
+			# Clients ip address
 			self.ciaddr = self.Field(9, 'uint:8, uint:8, uint:8, uint:8')
+			# `Your` clients address
 			self.yiaddr = self.Field(10, 'uint:8, uint:8, uint:8, uint:8')
+			# Server ip address, returned in bootreply by server
 			self.siaddr = self.Field(11, 'uint:8, uint:8, uint:8, uint:8')
+			# gateway IP address, used in optional cross-gateway booting
 			self.giaddr = self.Field(12, 'uint:8, uint:8, uint:8, uint:8')
+			# Clients hardware address, filed in by client
 			self.chaddr = self.Field(13, ', '.join(['hex:8'] * 16))
+			# Optional server host name
 			self.sname = self.Field(14, 'bytes:64')
+			# Boot file name
 			self.file = self.Field(15, 'bytes:128')
+
+			# Vendor specific area
 			self.magic_cookie = self.Field(16, 'uint:8, uint:8, uint:8, uint:8')
-
-			self.mac = None
-
 			self.options = {}
 
 		def deserialize(self, binMessage):
@@ -63,6 +77,9 @@ class DHCP(object):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
 		self.socket.bind(('0.0.0.0', 67))
+
+	def send(self, package):
+		self.socket.sendto(package, ('<broadcast>', 68))
 
 	def OFFER(self, msg):
 		'''
@@ -98,6 +115,8 @@ class DHCP(object):
 			60: self.Msg.Option(60, 9, b'PXEClient'), # Class identifier
 			...
 		}
+
+		self.send(msg.package)
 
 	def REQUEST(self, msg):
 		pass
