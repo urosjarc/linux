@@ -72,6 +72,15 @@ class DHCProxy(object):
 			self.magic_cookie = self.Field(16, 'uint:8, uint:8, uint:8, uint:8')
 			self._options = {}
 
+		def serialize(self):
+			super(DHCProxy.Msg, self).serialize()
+			optionPac = b''
+			for key in self._options:
+				option = self._options[key]
+				optionPac += option.bits.bytes
+
+			self.package += optionPac
+
 		def deserialize(self, package):
 			bits = super(DHCProxy.Msg, self).deserialize(package)
 
@@ -177,6 +186,8 @@ class DHCProxy(object):
 		)
 
 		msg[43] = vendorOpt.bytes
+
+		msg.serialize()
 		self.send(msg.package)
 
 	def listen(self):
@@ -191,9 +202,3 @@ class DHCProxy(object):
 
 				if msg.type() == msg.DHCPDISCOVER:
 					self.OFFER(msg)
-
-if __name__ == "__main__":
-	server = DHCProxy(
-		'192.168.1.15', '192.168.1.111'
-	)
-	server.listen()

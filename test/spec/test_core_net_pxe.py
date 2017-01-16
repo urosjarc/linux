@@ -41,7 +41,7 @@ class Test_DHCP_msg:
 
 	def test_server(self, dhcp_msg):
 		server = DHCProxy(
-			'192.168.1.15',
+			'192.168.1.2',
 			'192.168.1.111',
 		)
 		with open(Path.join(__file__, '../../resources/net/DHCDISCOVER.bin'), 'rb') as file:

@@ -40,7 +40,7 @@ class BinMsg(object):
 		package = BitArray()
 
 		for field in self.get_fields():
-			package.append(field.raw)
+			package.append(field.bits)
 
 		self.package = package.bytes
 
