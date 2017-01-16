@@ -3,8 +3,6 @@
 
 import pytest
 from mylinux.core.utils import Path
-from bitstring import ConstBitStream, Bits
-from mylinux.core.net import ICMP
 import binascii
 
 
@@ -36,14 +34,6 @@ class Test_DHCP_msg:
 			assert dhcp_msg.file.value == b'\x00' * 128
 			assert dhcp_msg.magic_cookie.value == [99, 130, 83, 99]
 
-			assert dhcp_msg.options[53].data == ConstBitStream('0x01')
-			assert dhcp_msg.options[57].data == ConstBitStream('0x04ec')
-			assert 255 not in dhcp_msg.options
-
-	def test_checksum(self):
-		echo = ICMP.Echo()
-		assert echo.checksum.value == b'\xde\xf8'
-
-	def test_echo(self):
-		echo = ICMP.Echo()
-		echo.request()
+			assert dhcp_msg.type() == 1
+			with pytest.raises(KeyError):
+				dhcp_msg[255]

@@ -75,7 +75,7 @@ class DHCProxy(object):
 		def deserialize(self, package):
 			bits = super(DHCProxy.Msg, self).deserialize(package)
 
-			self.mac = self.chaddr.data[:self.hlen.data]
+			self.mac = self.chaddr.value[:self.hlen.value]
 
 			while True:
 				optNum = bits.read('uint:8')
@@ -89,7 +89,7 @@ class DHCProxy(object):
 
 		def type(self, type=None):
 			if type is None:
-				return self._options[self.TAG.message_type].raw.int
+				return self._options[self.TAG.message_type].bits.int
 			else:
 				self._options[self.TAG.message_type] = self.Option(
 					self.TAG.message_type, 1, pack('int:8', type)

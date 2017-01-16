@@ -8,21 +8,21 @@ class BinMsg(object):
 		def __init__(self, place, form, data=None): # If (data==0) => data == None, so kwargs is needed
 			self.place = place
 			self.format = form
-			self.data = None
+			self.value = None
 			self.bits = None
 
 			self.set(data)
 
 		def set(self, data=None):
 			if data is not None:
-				self.data = data
+				self.value = data
 				if isinstance(data, list):
 					packArgs = (tuple([self.format]) + tuple(data))
 					self.bits = Bits(pack(*packArgs))
 				else:
 					self.bits = Bits(pack(self.format, data))
 			else:
-				return self.data
+				return self.value
 
 	def __init__(self):
 		self.package = None
