@@ -3,6 +3,7 @@
 
 import pytest
 from mylinux.core.utils import Path
+from mylinux.core.net.PXE import DHCProxy
 import binascii
 
 
@@ -15,7 +16,7 @@ def dhcp_msg():
 class Test_DHCP_msg:
 	def test_deserialize(self, dhcp_msg):
 		with open(Path.join(__file__, '../../resources/net/DHCDISCOVER.bin'), 'rb') as file:
-			dhcp_msg.deserialize(file)
+			dhcp_msg.deserialize(file.read())
 			assert dhcp_msg.op.value == 1
 			assert dhcp_msg.htype.value == 1
 			assert dhcp_msg.hlen.value == 6
@@ -37,3 +38,12 @@ class Test_DHCP_msg:
 			assert dhcp_msg.type() == 1
 			with pytest.raises(KeyError):
 				dhcp_msg[255]
+
+	def test_server(self, dhcp_msg):
+		server = DHCProxy(
+			'192.168.1.15',
+			'192.168.1.111',
+		)
+		with open(Path.join(__file__, '../../resources/net/DHCDISCOVER.bin'), 'rb') as file:
+			dhcp_msg.deserialize(file.read())
+			server.OFFER(dhcp_msg)

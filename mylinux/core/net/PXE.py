@@ -102,9 +102,12 @@ class DHCProxy(object):
 			if key == self.TAG.message_type:
 				raise Exception('Set message type with Msg.type method')
 
-			self._options[key] = self.Option(
-				key, len(value) * 8, value
-			)
+			if isinstance(value, self.Option):
+				self._options[key] = value
+			else:
+				self._options[key] = self.Option(
+					key, len(value) * 8, value
+				)
 
 	def __init__(self, ip, tftp_ip):
 
@@ -112,6 +115,7 @@ class DHCProxy(object):
 		self.tftp_ip = tftp_ip  # Tfpt ip 192.168.1.9
 
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, True)
 		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
 		self.socket.bind((self.ip, 67))
 
@@ -125,18 +129,18 @@ class DHCProxy(object):
 		'''
 
 		# HEADERS
-		msg.op(msg.BOOTREPLY)
-		msg.ciaddr([0, 0, 0, 0])
-		msg.yiaddr([0, 0, 0, 0])
-		msg.siaddr(self.tftp_ip)
-		msg.file('PXEClient')
+		msg.op.set(msg.BOOTREPLY)
+		msg.ciaddr.set([0, 0, 0, 0])
+		msg.yiaddr.set([0, 0, 0, 0])
+		msg.siaddr.set(self.tftp_ip.split('.'))
 
 		# OPTIONS
-		oldOpts = msg.options
+		oldOpts = msg._options
 		msg._options = {}
 
 		msg.type(self.Msg.DHCPOFFER)
-		msg[54] = socket.inet_aton('.'.join(self.ip))
+		msg[67] = b'PXEClient'
+		msg[54] = socket.inet_aton(self.ip)
 		msg[97] = oldOpts[97]
 
 		PXE_DISCOVERY_CONTROL = pack(
@@ -146,31 +150,33 @@ class DHCProxy(object):
 		)
 
 		PXE_BOOT_SERVERS = pack(
-			'int:8, int:16, bytes:1',
+			'int:8, int:16, bytes:2',
 			self.Msg.PXE_BOOT_SERVERS,
 			2, b'\x00\x00'
 		)
 
 		desc = Bits(bytes=b'Linux default installation')
+		msg_menu = Bits(bytes=(b'\x00' + Bits(bytes=str(len(desc)).encode()).bytes + desc.bytes))
 		PXE_BOOT_MENU = pack(
-			'int:8, int:16, bytes:3',
+			'int:8, int:16, bytes:{}'.format(int(len(msg_menu)/8)),
 			self.Msg.PXE_BOOT_MENU,
-			2, b'\x00' + Bits(bytes=len(desc)).bytes + desc.bytes
+			int(len(msg_menu)/8), msg_menu.bytes
 		)
 
 		PXE_MENU_PROMPT = pack(
-			'int:8, int:8, bin:8',
+			'int:8, int:8, bytes:1',
 			self.Msg.PXE_MENU_PROMPT,
 			1, b'\x00'
 		)
 
-		msg[43] = (
+		vendorOpt = (
 			PXE_DISCOVERY_CONTROL +
 			PXE_BOOT_SERVERS +
 			PXE_BOOT_MENU +
 			PXE_MENU_PROMPT
 		)
 
+		msg[43] = vendorOpt.bytes
 		self.send(msg.package)
 
 	def listen(self):
@@ -187,4 +193,7 @@ class DHCProxy(object):
 					self.OFFER(msg)
 
 if __name__ == "__main__":
-	msg = DHCProxy()
+	server = DHCProxy(
+		'192.168.1.15', '192.168.1.111'
+	)
+	server.listen()
