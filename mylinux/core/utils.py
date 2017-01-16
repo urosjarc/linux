@@ -8,27 +8,21 @@ class BinMsg(object):
 		def __init__(self, place, form, data=None): # If (data==0) => data == None, so kwargs is needed
 			self.place = place
 			self.format = form
-			self.value = None
-			self.raw = None
+			self.data = None
+			self.bits = None
 
 			self.set(data)
 
-		def set(self, value=None):
-			if value is not None:
-				self.value = value
-				if isinstance(value, list):
-					packArgs = (tuple([self.format]) + tuple(value))
-					self.raw = Bits(pack(*packArgs))
+		def set(self, data=None):
+			if data is not None:
+				self.data = data
+				if isinstance(data, list):
+					packArgs = (tuple([self.format]) + tuple(data))
+					self.bits = Bits(pack(*packArgs))
 				else:
-					self.raw = Bits(pack(self.format, value))
+					self.bits = Bits(pack(self.format, data))
 			else:
-				return self.value
-
-	@staticmethod
-	def ones_comp_add(num1, num2, length=16):
-		MOD = 1 << length
-		result = num1 + num2
-		return result if result < MOD else (result + 1) % MOD
+				return self.data
 
 	def __init__(self):
 		self.package = None
@@ -51,15 +45,15 @@ class BinMsg(object):
 		self.package = package.bytes
 
 
-	def deserialize(self, binMessage):
-		self.package = binMessage
-		bits = ConstBitStream(binMessage)
+	def deserialize(self, package):
+		self.package = package
+		bits = ConstBitStream(package)
 
 		for field in self.get_fields():
 			if ',' in field.format:
-				field.set(value=bits.readlist(field.format))
+				field.set(data=bits.readlist(field.format))
 			else:
-				field.set(value=bits.read(field.format))
+				field.set(data=bits.read(field.format))
 
 		return bits
 
