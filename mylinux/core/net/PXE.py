@@ -3,7 +3,7 @@ from bitstring import Bits, pack
 from mylinux.core.utils import BinMsg
 
 
-class DHCP(object):
+class DHCProxy(object):
 	class Msg(BinMsg):
 		BOOTREQUEST = 1
 		BOOTREPLY = 2
@@ -16,6 +16,11 @@ class DHCP(object):
 		DHCPNAK = 6
 		DHCPRELEASE = 7
 		DHCPINFORM = 8
+
+		PXE_DISCOVERY_CONTROL = 6
+		PXE_BOOT_SERVERS = 8
+		PXE_BOOT_MENU = 9
+		PXE_MENU_PROMPT = 10
 
 		max_size = 576
 
@@ -30,7 +35,7 @@ class DHCP(object):
 				self.bits = Bits(bytes=data)
 
 		def __init__(self):
-			super(DHCP.Msg, self).__init__()
+			super(DHCProxy.Msg, self).__init__()
 
 			self.mac = None
 
@@ -68,7 +73,7 @@ class DHCP(object):
 			self._options = {}
 
 		def deserialize(self, package):
-			bits = super(DHCP.Msg, self).deserialize(package)
+			bits = super(DHCProxy.Msg, self).deserialize(package)
 
 			self.mac = self.chaddr.data[:self.hlen.data]
 
@@ -98,7 +103,7 @@ class DHCP(object):
 				raise Exception('Set message type with Msg.type method')
 
 			self._options[key] = self.Option(
-				key, len(value * 8), value
+				key, len(value) * 8, value
 			)
 
 	def __init__(self, ip, tftp_ip):
@@ -115,28 +120,16 @@ class DHCP(object):
 
 	def OFFER(self, msg):
 		'''
-			http://www.slideshare.net/PeterREgli/rarp-bootp-dhcp
 			DHCPOFFER defined in:
-				- DHCP specs, page 27, 37
-				- PXE specs, page 27
+				- PXE specs, page 27, 21
 		'''
 
 		# HEADERS
-
 		msg.op(msg.BOOTREPLY)
-		# htype = DHCPDISCOVER
-		# hlen = DHCPDISCOVER
-		msg.hops(0)
-		# xid = DHCPDISCOVER
-		msg.secs(0)
 		msg.ciaddr([0, 0, 0, 0])
 		msg.yiaddr([0, 0, 0, 0])
 		msg.siaddr(self.tftp_ip)
-		# flags = DHCPDISCOVER
-		# giaddr = DHCPDISCOVER
-		# shaddr = DHCPDISCOVER
-		# sname = DHCPDISCOVER = empty
-		# file = DHCPDISCOVER = empty
+		msg.file('PXEClient')
 
 		# OPTIONS
 		oldOpts = msg.options
@@ -145,8 +138,38 @@ class DHCP(object):
 		msg.type(self.Msg.DHCPOFFER)
 		msg[54] = socket.inet_aton('.'.join(self.ip))
 		msg[97] = oldOpts[97]
-		msg[60] = b'PXEClient'
-		msg[67] = b'pxelinux.0'
+
+		PXE_DISCOVERY_CONTROL = pack(
+			'int:8, int:8, bin:8',
+			self.Msg.PXE_DISCOVERY_CONTROL,
+			1, '0b01000000' # Disable multicast discovery
+		)
+
+		PXE_BOOT_SERVERS = pack(
+			'int:8, int:16, bytes:1',
+			self.Msg.PXE_BOOT_SERVERS,
+			2, b'\x00\x00'
+		)
+
+		desc = Bits(bytes=b'Linux default installation')
+		PXE_BOOT_MENU = pack(
+			'int:8, int:16, bytes:3',
+			self.Msg.PXE_BOOT_MENU,
+			2, b'\x00' + Bits(bytes=len(desc)).bytes + desc.bytes
+		)
+
+		PXE_MENU_PROMPT = pack(
+			'int:8, int:8, bin:8',
+			self.Msg.PXE_MENU_PROMPT,
+			1, b'\x00'
+		)
+
+		msg[43] = (
+			PXE_DISCOVERY_CONTROL +
+			PXE_BOOT_SERVERS +
+			PXE_BOOT_MENU +
+			PXE_MENU_PROMPT
+		)
 
 		self.send(msg.package)
 
@@ -163,6 +186,5 @@ class DHCP(object):
 				if msg.type() == msg.DHCPDISCOVER:
 					self.OFFER(msg)
 
-
 if __name__ == "__main__":
-	msg = DHCP()
+	msg = DHCProxy()

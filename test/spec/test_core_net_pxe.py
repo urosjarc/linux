@@ -10,8 +10,8 @@ import binascii
 
 @pytest.fixture
 def dhcp_msg():
-	from mylinux.core.net.PXE import DHCP
-	return DHCP.Msg()
+	from mylinux.core.net.PXE import DHCProxy
+	return DHCProxy.Msg()
 
 
 class Test_DHCP_msg:
