@@ -5,27 +5,28 @@ from mylinux.core.utils import BinMsg
 
 class DHCProxy(object):
 	class Msg(BinMsg):
-		BOOTREQUEST = 1
-		BOOTREPLY = 2
-
-		DHCPDISCOVER = 1
-		DHCPOFFER = 2
-		DHCPREQUEST = 3
-		DHCPDECLINE = 4
-		DHCPACK = 5
-		DHCPNAK = 6
-		DHCPRELEASE = 7
-		DHCPINFORM = 8
-
-		PXE_DISCOVERY_CONTROL = 6
-		PXE_BOOT_SERVERS = 8
-		PXE_BOOT_MENU = 9
-		PXE_MENU_PROMPT = 10
-
 		max_size = 576
 
-		class TAG(object):
+		class OP(object):
+			BOOTREQUEST = 1
+			BOOTREPLY = 2
+
+		class TYPE(object):
+			DHCPDISCOVER = 1
+			DHCPOFFER = 2
+			DHCPREQUEST = 3
+			DHCPDECLINE = 4
+			DHCPACK = 5
+			DHCPNAK = 6
+			DHCPRELEASE = 7
+			DHCPINFORM = 8
+
+		class TAGS(object):
 			message_type = 53
+			PXE_DISCOVERY_CONTROL = 6
+			PXE_BOOT_SERVERS = 8
+			PXE_BOOT_MENU = 9
+			PXE_MENU_PROMPT = 10
 
 		class Option(object):
 			def __init__(self, tag, length, data):
@@ -33,6 +34,12 @@ class DHCProxy(object):
 				self.length = length
 				self.data = data
 				self.bits = Bits(bytes=data)
+
+		class VendorOption(Option):
+			def __init__(self, tag, data):
+				super(DHCProxy.Msg.VendorOption, self).__init__(
+					tag, len(data), data
+				)
 
 		def __init__(self):
 			super(DHCProxy.Msg, self).__init__()
@@ -98,25 +105,28 @@ class DHCProxy(object):
 
 		def type(self, type=None):
 			if type is None:
-				return self._options[self.TAG.message_type].bits.int
+				return self._options[self.TAGS.message_type].bits.int
 			else:
-				self._options[self.TAG.message_type] = self.Option(
-					self.TAG.message_type, 1, pack('int:8', type)
+				self._options[self.TAGS.message_type] = self.Option(
+					self.TAGS.message_type, 1, pack('int:8', type)
 				)
 
-		def __getitem__(self, item):
-			return self._options[item]
-
-		def __setitem__(self, key, value):
-			if key == self.TAG.message_type:
-				raise Exception('Set message type with Msg.type method')
-
-			if isinstance(value, self.Option):
-				self._options[key] = value
+		def option(self, key, value=None):
+			if value is not None:
+				return self._options[key]
 			else:
-				self._options[key] = self.Option(
-					key, len(value) * 8, value
-				)
+				if key == self.TAGS.message_type:
+					raise Exception('Set message type with Msg.type method')
+
+				if isinstance(value, self.Option):
+					self._options[key] = value
+					return self._options[self.TAGS.message_type].bits.int
+				else:
+					self._options[key] = self.Option(
+						key, len(value) * 8, value
+					)
+
+		def vendorOption
 
 	def __init__(self, ip, tftp_ip):
 
@@ -155,7 +165,7 @@ class DHCProxy(object):
 		PXE_DISCOVERY_CONTROL = pack(
 			'int:8, int:8, bin:8',
 			self.Msg.PXE_DISCOVERY_CONTROL,
-			1, '0b01000000' # Disable multicast discovery
+			1, '0b01000000'  # Disable multicast discovery
 		)
 
 		PXE_BOOT_SERVERS = pack(
@@ -167,9 +177,9 @@ class DHCProxy(object):
 		desc = Bits(bytes=b'Linux default installation')
 		msg_menu = Bits(bytes=(b'\x00' + Bits(bytes=str(len(desc)).encode()).bytes + desc.bytes))
 		PXE_BOOT_MENU = pack(
-			'int:8, int:16, bytes:{}'.format(int(len(msg_menu)/8)),
+			'int:8, int:16, bytes:{}'.format(int(len(msg_menu) / 8)),
 			self.Msg.PXE_BOOT_MENU,
-			int(len(msg_menu)/8), msg_menu.bytes
+			int(len(msg_menu) / 8), msg_menu.bytes
 		)
 
 		PXE_MENU_PROMPT = pack(
